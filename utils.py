@@ -2,6 +2,8 @@ import tensorflow as tf
 from tensorflow import keras
 from sklearn.model_selection import train_test_split
 import numpy as np
+import torch.nn as nn
+import torch.optim as optim
 
 class Setup():
     N = 500
@@ -18,22 +20,31 @@ class Setup():
 
 class Teacher():
     def build_teacher(self, N, P, sgm_w, sgm_e):
+        np.random.seed(42) # for repruducability
+
         w_bar = np.random.normal(0, sgm_w, N)
-        X = np.random.normal(0, np.sqrt(1 / N), [N, P])
+        X = np.random.normal(0, np.sqrt(1 / N), [P, N])
         eps = np.random.normal(0, sgm_e, P)
 
-        Y = w_bar @ X + eps
-        return X.T, Y
+        Y = X @ w_bar + eps
+        # convert from float64 to float32 for various reasons (speedup, less memory usage)
+        X, Y = np.array(X, dtype=np.float32), np.array(Y, dtype=np.float32)
+        return X, Y
 
-class Student():
-    def build_student(self, N, P, sgm_w0):
-        initializer = keras.initializers.RandomNormal(mean=0., stddev=sgm_w0)
-        model = keras.models.Sequential([
-            keras.layers.Flatten(input_shape=[N, ]),
-            keras.layers.Dense(P, activation=None, name="Final", kernel_initializer=initializer),
-        ])
-        # hidden1 = model.layers[1]
-        # weights, biases = hidden1.get_weights()
-        model.compile(loss = "mean_squared_error", optimizer = keras.optimizers.SGD(lr=1e-2))       # model.summary()
-        return model
+# class Student():
+    # def build_student(self, N, P, sgm_w0):
+    #     initializer = keras.initializers.RandomNormal(mean=0., stddev=sgm_w0)
+    #     model = keras.models.Sequential([
+    #         keras.layers.Flatten(input_shape=[N, ]),
+    #         keras.layers.Dense(P, activation=None, name="Final", kernel_initializer=initializer),
+    #     ])
+    #     model.compile(loss = "mean_squared_error", optimizer ='sgd')       # model.summary()
+    #     return model
 
+
+class Student(nn.Module):
+    def __init__(self, n_features):
+        super(Student, self).__init__()
+        self.linear = nn.Linear(in_features=n_features, out_features=1)
+    def forward(self, x):
+        return self.linear(x)
