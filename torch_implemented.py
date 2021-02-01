@@ -8,15 +8,15 @@ import torch.optim as optim
 
 
 
-def training_loop( X_train,Y_train, n_epochs, optimizer, model, loss_fn):
-    history=[]
+def training_loop(X_train,Y_train, n_epochs, optimizer, model, loss_fn):
+    history={"Training Loss":[]}
     for epoch in range(1, n_epochs + 1):
         Y_pred = model(X_train)
         loss_train = loss_fn(Y_pred, Y_train)
         optimizer.zero_grad()
         loss_train.backward()
         optimizer.step()
-        history.append(loss_train.item())
+        history["Training Loss"].append(loss_train.item())
         if epoch == 1 or epoch % 10 == 0:
             print(f"Epoch {epoch}, Training loss {loss_train.item():.4f}")
     return history
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     Y_tensor = torch.from_numpy(Y.reshape(setup.P, 1))
 
     N_FEATURES = setup.N
-    model = Student(n_features=N_FEATURES)
+    model = Student(n_features=N_FEATURES, sgm_e=setup.sgm_e)
     y_predicted = model(X_tensor)
 
     # feature scaling
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     X_tensor=X_scaled
 
     ### Hyperparameters
-    learning_rate = 1e-3
+    learning_rate = 1e-2
     epochs = 1000
     costs = []
     mean = []

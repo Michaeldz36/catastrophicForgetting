@@ -43,8 +43,10 @@ class Teacher():
 
 
 class Student(nn.Module):
-    def __init__(self, n_features):
+    def __init__(self, n_features, sgm_e=0.01, sparsity=0.):
         super(Student, self).__init__()
         self.linear = nn.Linear(in_features=n_features, out_features=1)
+        nn.init.sparse_(self.linear.weight, sparsity=sparsity, std=sgm_e)
+
     def forward(self, x):
         return self.linear(x)
