@@ -5,6 +5,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from utils import Setup, Teacher, Student, training_loop
 
+### Hyperparameters
+learning_rate = 1e-2
+epochs = 500
+scaling = False
 
 if __name__ == '__main__':
     setup = Setup()
@@ -24,14 +28,8 @@ if __name__ == '__main__':
     means = X_tensor.mean(1, keepdim=True)
     deviations = X_tensor.std(1, keepdim=True)
     X_scaled = (X_tensor - means) / deviations
-    X_tensor=X_scaled
-
-    ### Hyperparameters
-    learning_rate = 1e-2
-    epochs = 1000
-    costs = []
-    mean = []
-    std = []
+    if scaling:
+        X_tensor=X_scaled
 
     criterion = nn.MSELoss()
     # loss = criterion(y_tensor, predictions)
