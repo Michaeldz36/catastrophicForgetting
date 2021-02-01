@@ -1,25 +1,10 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-from utils import Setup, Teacher, Student
-from sklearn.model_selection import train_test_split
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import pandas as pd
+import matplotlib.pyplot as plt
+from utils import Setup, Teacher, Student, training_loop
 
-
-
-def training_loop(X_train,Y_train, n_epochs, optimizer, model, loss_fn):
-    history={"Training Loss":[]}
-    for epoch in range(1, n_epochs + 1):
-        Y_pred = model(X_train)
-        loss_train = loss_fn(Y_pred, Y_train)
-        optimizer.zero_grad()
-        loss_train.backward()
-        optimizer.step()
-        history["Training Loss"].append(loss_train.item())
-        if epoch == 1 or epoch % 10 == 0:
-            print(f"Epoch {epoch}, Training loss {loss_train.item():.4f}")
-    return history
 
 if __name__ == '__main__':
     setup = Setup()
