@@ -1,8 +1,10 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
-from torch.utils.data.sampler import SubsetRandomSampler
+from torch.utils.data import Dataset, DataLoader
+from sklearn.preprocessing import StandardScaler
+from torch.autograd import Variable
+
 
 
 
@@ -52,7 +54,23 @@ def make_ds(X,Y, scale_X=True):
         deviations = X_tensor.std(1, keepdim=True)
         X_tensor -= means
         X_tensor /= deviations
-    return X_tensor, Y_tensor
+    return (X_tensor, Y_tensor)
+
+
+class PrepareData(Dataset):
+    def __init__(self, X, y, scale_X=True):
+        if not torch.is_tensor(X):
+            if scale_X:
+                X = StandardScaler().fit_transform(X)
+                self.X = torch.from_numpy(X)
+        if not torch.is_tensor(y):
+            self.y = torch.from_numpy(y)
+
+    def __len__(self):
+        return len(self.X)
+
+    def __getitem__(self, idx):
+        return self.X[idx], self.y[idx]
 
 
 def training_loop(X_train,Y_train, n_epochs, optimizer, model, loss_fn):
@@ -69,54 +87,58 @@ def training_loop(X_train,Y_train, n_epochs, optimizer, model, loss_fn):
     return history
 
 
-def load_data(ds, batch_size):
-    train_loader = DataLoader(ds, batch_size=batch_size,
-                           sampler=SubsetRandomSampler(train))
-    validation_loader = DataLoader(ds, batch_size=batch_size,
-                          sampler=SubsetRandomSampler(test))
+def load_data(train_ds, valid_ds, batch_size):
+    train_loader = DataLoader(train_ds, batch_size=batch_size,
+                           sampler=None)
+    validation_loader = DataLoader(valid_ds, batch_size=batch_size,
+                          sampler=None)
     data_loaders = {"train": train_loader, "val": validation_loader}
-    return data_loaders
+    data_lengths = {"train": len(train_ds), "val": len(valid_ds)}
+    return data_loaders, data_lengths
 
 
-def train_valid_loop(data_loaders, n_epochs, optimizer, model, criterion):
+def train_valid_loop(data_loaders, data_lengths, n_epochs, optimizer, model, criterion, e_print=1):
     history={"E_t":[], "E_g":[]}
     for epoch in range(1, n_epochs + 1):
-        print('Epoch {}/{}'.format(epoch, n_epochs - 1))
-        print('-' * 10)
+        if epoch % e_print == 0:
+            print('Epoch {}/{}'.format(epoch, n_epochs))
+            print('-' * 10)
 
         # Each epoch has a training and validation phase
         for phase in ['train', 'val']:
             if phase == 'train':
-                optimizer = scheduler(optimizer, epoch)
                 model.train(True)  # Set model to training mode
             else:
                 model.train(False)  # Set model to evaluate mode
 
             running_loss = 0.0
 
-        # Iterate over data.
-        for data in data_loaders[phase]:
-            # get the input Xs and their corresponding Ys
-            X = data['X']
-            Y_true = data['Y']
+            # Iterate over data.
+            for (Xb, yb) in data_loaders[phase]:
+                # get the input Xs and their corresponding Ys
+                _X = Variable(Xb).float()
+                _y = Variable(yb).float()
 
-            # forward pass to get outputs
-            y_pred = model(X)
+                # forward pass to get outputs
+                y_pred = model(_X)
 
-            # calculate the loss between predicted and target keypoints
-            loss = criterion(y_pred, Y_true)
+                # calculate the loss between predicted and target
+                loss = criterion(y_pred, _y)
 
-            # zero the parameter (weight) gradients
-            optimizer.zero_grad()
+                # zero the parameter (weight) gradients
+                optimizer.zero_grad()
 
-            # backward + optimize only if in training phase
-            if phase == 'train':
-                loss.backward()
-                # update the weights
-                optimizer.step()
+                # backward + optimize only if in training phase
+                if phase == 'train':
+                    loss.backward()
+                    # update the weights
+                    optimizer.step()
 
-            # print loss statistics
-            running_loss += loss.data[0]
+                # print loss statistics
+                running_loss += loss.item()
 
-        epoch_loss = running_loss / data_lengths[phase]
-        print('{} Loss: {:.4f}'.format(phase, epoch_loss))
+            epoch_loss = running_loss / data_lengths[phase]
+            if epoch % e_print == 0:
+                print('{} Loss: {:.4f}'.format(phase, epoch_loss))
+        if epoch % e_print == 0:
+            print('\n')

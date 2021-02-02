@@ -3,8 +3,7 @@ import torch.optim as optim
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from utils import Setup, Teacher, Student, \
-    make_ds, load_data, train_valid_loop, PrepareData
+from utils import Setup, Teacher, Student, make_ds, training_loop
 from sklearn.model_selection import train_test_split
 
 
@@ -42,23 +41,16 @@ def main():
     optimizer = optim.SGD(model.parameters(), lr=learning_rate)
     criterion = nn.MSELoss()
 
-
-    # train_ds = make_ds(X_train, Y_train, scale_X=True)
-    # generalize_ds = make_ds(X_test, Y_test, scale_X=True)
-
-    train_ds = PrepareData(X_train, y=Y_train, scale_X=True)
-    generalize_ds = PrepareData(X_test, y=Y_test, scale_X=True)
-
-    data_loaders, data_lengths = load_data(train_ds=train_ds, valid_ds=generalize_ds,
-                             batch_size=X_train.shape[0])
-
-    train_valid_loop(data_loaders=data_loaders,
-                     data_lengths=data_lengths,
-                     n_epochs=epochs,
-                     optimizer=optimizer,
-                     model=model,
-                     criterion=criterion
-                     )
+    X,Y = make_ds(X_train, Y_train, scale_X=True)
+    history = training_loop(X_train=X, Y_train=Y, n_epochs=epochs,
+                            optimizer=optimizer,
+                            model=model,
+                            loss_fn=criterion)
+    plt.figure()
+    pd.DataFrame(history).plot(figsize=(8, 5))
+    plt.grid(True)
+    # plt.gca().set_ylim(0, 1)
+    plt.show()
 
 if __name__ == '__main__':
     main()
