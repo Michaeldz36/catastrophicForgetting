@@ -1,9 +1,6 @@
-import tensorflow as tf
-from tensorflow import keras
-from sklearn.model_selection import train_test_split
 import numpy as np
 import torch.nn as nn
-import torch.optim as optim
+
 
 class Setup():
     N = 500
@@ -31,16 +28,6 @@ class Teacher():
         X, Y = np.array(X, dtype=np.float32), np.array(Y, dtype=np.float32)
         return X, Y
 
-# class Student():
-    # def build_student(self, N, P, sgm_w0):
-    #     initializer = keras.initializers.RandomNormal(mean=0., stddev=sgm_w0)
-    #     model = keras.models.Sequential([
-    #         keras.layers.Flatten(input_shape=[N, ]),
-    #         keras.layers.Dense(P, activation=None, name="Final", kernel_initializer=initializer),
-    #     ])
-    #     model.compile(loss = "mean_squared_error", optimizer ='sgd')       # model.summary()
-    #     return model
-
 
 class Student(nn.Module):
     def __init__(self, n_features, sgm_e=0.01, sparsity=0.):
@@ -52,14 +39,14 @@ class Student(nn.Module):
         return self.linear(x)
 
 def training_loop(X_train,Y_train, n_epochs, optimizer, model, loss_fn):
-    history={"Training Loss":[]}
+    history={"E_t":[]}
     for epoch in range(1, n_epochs + 1):
         Y_pred = model(X_train)
         loss_train = loss_fn(Y_pred, Y_train)
         optimizer.zero_grad()
         loss_train.backward()
         optimizer.step()
-        history["Training Loss"].append(loss_train.item())
+        history["E_t"].append(loss_train.item())
         if epoch == 1 or epoch % 10 == 0:
             print(f"Epoch {epoch}, Training loss {loss_train.item():.4f}")
     return history

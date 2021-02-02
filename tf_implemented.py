@@ -1,3 +1,5 @@
+# TODO: reimplement Student
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,3 +24,13 @@ if __name__ == '__main__':
     plt.show()
 
     mse_test = model.evaluate(X_test, y_test)
+
+# class Student():
+    # def build_student(self, N, P, sgm_w0):
+    #     initializer = keras.initializers.RandomNormal(mean=0., stddev=sgm_w0)
+    #     model = keras.models.Sequential([
+    #         keras.layers.Flatten(input_shape=[N, ]),
+    #         keras.layers.Dense(P, activation=None, name="Final", kernel_initializer=initializer),
+    #     ])
+    #     model.compile(loss = "mean_squared_error", optimizer ='sgd')       # model.summary()
+    #     return model
