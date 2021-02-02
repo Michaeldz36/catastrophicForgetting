@@ -52,13 +52,18 @@ def main():
     data_loaders, data_lengths = load_data(train_ds=train_ds, valid_ds=generalize_ds,
                              batch_size=X_train.shape[0])
 
-    train_valid_loop(data_loaders=data_loaders,
+    history = train_valid_loop(data_loaders=data_loaders,
                      data_lengths=data_lengths,
                      n_epochs=epochs,
                      optimizer=optimizer,
                      model=model,
                      criterion=criterion
                      )
+
+    pd.DataFrame(history).plot(figsize=(8, 5))
+    plt.grid(True)
+    # plt.gca().set_ylim(0, 1)
+    plt.show()
 
 if __name__ == '__main__':
     main()

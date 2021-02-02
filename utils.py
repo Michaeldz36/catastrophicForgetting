@@ -6,11 +6,9 @@ from sklearn.preprocessing import StandardScaler
 from torch.autograd import Variable
 
 
-
-
 class Setup():
-    N = 500
-    P = 400
+    N = 3
+    P = 4
     alpha = P / N
 
     sgm_w0 = 1.
@@ -116,14 +114,17 @@ def train_valid_loop(data_loaders, data_lengths, n_epochs, optimizer, model, cri
             # Iterate over data.
             for (Xb, yb) in data_loaders[phase]:
                 # get the input Xs and their corresponding Ys
-                _X = Variable(Xb).float()
-                _y = Variable(yb).float()
+                X = Xb
+                Y_true = torch.reshape(yb, (yb.shape[0], 1))
 
                 # forward pass to get outputs
-                y_pred = model(_X)
+                y_pred = model(X)
+                # print("Y_true ", Y_true)
+                # print("y_pred ", y_pred)
+                # print(Y_true.shape, y_pred.shape)
 
                 # calculate the loss between predicted and target
-                loss = criterion(y_pred, _y)
+                loss = criterion(y_pred, Y_true)
 
                 # zero the parameter (weight) gradients
                 optimizer.zero_grad()
@@ -138,7 +139,12 @@ def train_valid_loop(data_loaders, data_lengths, n_epochs, optimizer, model, cri
                 running_loss += loss.item()
 
             epoch_loss = running_loss / data_lengths[phase]
+            if phase == 'train':
+                history["E_t"].append(epoch_loss)
+            elif phase == 'val':
+                history["E_g"].append(epoch_loss)
             if epoch % e_print == 0:
                 print('{} Loss: {:.4f}'.format(phase, epoch_loss))
         if epoch % e_print == 0:
             print('\n')
+    return history
