@@ -1,15 +1,10 @@
-import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from utils import Setup, Teacher, Student, training_loop, testing_loop
-from torch.utils.data import Dataset, DataLoader
-from sklearn.preprocessing import StandardScaler
+from utils import Setup, Teacher, Student, training_loop, make_ds, load_data
 from sklearn.model_selection import train_test_split
-
-from torch.utils.data.sampler import SubsetRandomSampler
 
 
 
@@ -21,7 +16,6 @@ teacher2 = Teacher()
 batch_size=setup.P
 learning_rate = 1e-2
 epochs = 500
-scaling=True
 
 
 def main():
@@ -43,25 +37,23 @@ def main():
     X_test, Y_test = np.c_[X1_test.T, X2_test.T].T, np.r_[Y1_test, Y2_test]
 
 
-
-    X_tensor = torch.from_numpy(X.reshape(P1+P2, setup.N))
-    Y_tensor = torch.from_numpy(Y.reshape(P1+P2, 1))
-
-    # feature scaling
-    means = X_tensor.mean(1, keepdim=True)
-    deviations = X_tensor.std(1, keepdim=True)
-    X_scaled = (X_tensor - means) / deviations
-    if scaling:
-        X_tensor=X_scaled
-
-
-    N_FEATURES = setup.N
-    model = Student(n_features=N_FEATURES, sgm_e=setup.sgm_e)
-
+    model = Student(n_features=setup.N, sgm_e=setup.sgm_e)
     optimizer = optim.SGD(model.parameters(), lr=learning_rate)
     criterion = nn.MSELoss()
 
+    X,Y = make_ds(X_train, Y_train, scale_X=True)
+    history = training_loop(X_train=X, Y_train=Y, n_epochs=epochs,
+                            optimizer=optimizer,
+                            model=model,
+                            loss_fn=criterion)
+    plt.figure()
+    pd.DataFrame(history).plot(figsize=(8, 5))
+    plt.grid(True)
+    # plt.gca().set_ylim(0, 1)
+    plt.show()
 
+    ds = make_ds(X_train, Y_train, scale_X=True)
+    # data_loaders = load_data(ds, batch_size=X_train.shape[0])
 
 
 if __name__ == '__main__':
