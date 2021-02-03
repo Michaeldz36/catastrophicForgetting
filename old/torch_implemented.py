@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 import pandas as pd
 import matplotlib.pyplot as plt
-from utils import Setup, Teacher, Student, training_loop
+from utils.utils import Setup, Teacher, Student, training_loop
 
 ### Hyperparameters
 learning_rate = 1e-2

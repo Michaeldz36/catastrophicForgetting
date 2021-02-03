@@ -3,7 +3,7 @@ import torch.optim as optim
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from utils import Setup, Teacher, Student, make_ds, training_loop
+from utils.utils import Setup, Teacher, Student, make_ds, training_loop
 from sklearn.model_selection import train_test_split
 
 

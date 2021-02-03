@@ -59,11 +59,6 @@ def main():
                      e_print=1
                      )
 
-    pd.DataFrame(history1).plot(figsize=(8, 5))
-    plt.grid(True)
-    # plt.gca().set_ylim(0, 1)
-    plt.show()
-
     train_ds2 = PrepareData(X2_train, y=Y2_train, scale_X=True)
     generalize_ds2 = PrepareData(X2_test, y=Y2_test, scale_X=True)
     data_loaders2, data_lengths2 = load_data(train_ds=train_ds2, valid_ds=generalize_ds2,
@@ -78,18 +73,15 @@ def main():
                                e_print=1
                                )
 
-    plt.figure()
-    pd.DataFrame(history2).plot(figsize=(8, 5))
-    plt.grid(True)
-    # plt.gca().set_ylim(0, 1)
-    plt.show()
-
     full_history=dict()
     for key in history1.keys():
         full_history[key]=history1[key]+history2[key]
     plt.figure()
+
     pd.DataFrame(full_history).plot(figsize=(8, 5))
     plt.grid(True)
+    plt.xlabel("Epoch")
+    plt.ylabel("Mean Squared Error")
     # plt.gca().set_ylim(0, 1)
     plt.show()
 
