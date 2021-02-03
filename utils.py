@@ -3,12 +3,11 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 from sklearn.preprocessing import StandardScaler
-from torch.autograd import Variable
 
 
 class Setup():
-    N = 3
-    P = 4
+    N = 5
+    P = 7
     alpha = P / N
 
     sgm_w0 = 1.

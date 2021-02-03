@@ -3,8 +3,8 @@ import torch.optim as optim
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from utils import Setup, Teacher, Student, \
-    make_ds, load_data, train_valid_loop, PrepareData
+from utils import Setup, Teacher, Student, PrepareData, \
+    load_data, train_valid_loop
 from sklearn.model_selection import train_test_split
 
 
@@ -16,7 +16,8 @@ teacher2 = Teacher()
 ### Hyperparameters
 batch_size=setup.P
 learning_rate = 1e-2
-epochs = 500
+epochs1 = 50
+epochs2=50
 
 
 def main():
@@ -43,24 +44,42 @@ def main():
     criterion = nn.MSELoss()
 
 
-    # train_ds = make_ds(X_train, Y_train, scale_X=True)
-    # generalize_ds = make_ds(X_test, Y_test, scale_X=True)
+    train_ds1 = PrepareData(X1_train, y=Y1_train, scale_X=True)
+    generalize_ds1 = PrepareData(X1_test, y=Y1_test, scale_X=True)
+    data_loaders1, data_lengths1 = load_data(train_ds=train_ds1, valid_ds=generalize_ds1,
+                             batch_size=X1_train.shape[0])
 
-    train_ds = PrepareData(X_train, y=Y_train, scale_X=True)
-    generalize_ds = PrepareData(X_test, y=Y_test, scale_X=True)
 
-    data_loaders, data_lengths = load_data(train_ds=train_ds, valid_ds=generalize_ds,
-                             batch_size=X_train.shape[0])
-
-    history = train_valid_loop(data_loaders=data_loaders,
-                     data_lengths=data_lengths,
-                     n_epochs=epochs,
+    history1 = train_valid_loop(data_loaders=data_loaders1,
+                     data_lengths=data_lengths1,
+                     n_epochs=epochs1,
                      optimizer=optimizer,
                      model=model,
-                     criterion=criterion
+                     criterion=criterion,
+                     e_print=1
                      )
 
-    pd.DataFrame(history).plot(figsize=(8, 5))
+    pd.DataFrame(history1).plot(figsize=(8, 5))
+    plt.grid(True)
+    # plt.gca().set_ylim(0, 1)
+    plt.show()
+
+    train_ds2 = PrepareData(X2_train, y=Y2_train, scale_X=True)
+    generalize_ds2 = PrepareData(X2_test, y=Y2_test, scale_X=True)
+    data_loaders2, data_lengths2 = load_data(train_ds=train_ds2, valid_ds=generalize_ds2,
+                                           batch_size=X2_train.shape[0])
+
+    history2 = train_valid_loop(data_loaders=data_loaders2,
+                               data_lengths=data_lengths2,
+                               n_epochs=epochs2,
+                               optimizer=optimizer,
+                               model=model,
+                               criterion=criterion,
+                               e_print=1
+                               )
+
+    plt.figure()
+    pd.DataFrame(history2).plot(figsize=(8, 5))
     plt.grid(True)
     # plt.gca().set_ylim(0, 1)
     plt.show()
