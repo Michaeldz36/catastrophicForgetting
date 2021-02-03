@@ -36,7 +36,6 @@ def main():
     X_train, Y_train = np.c_[X1_train.T, X2_train.T].T, np.r_[Y1_train, Y2_train]
     X_test, Y_test = np.c_[X1_test.T, X2_test.T].T, np.r_[Y1_test, Y2_test]
 
-
     model = Student(n_features=setup.N, sgm_e=setup.sgm_e)
     optimizer = optim.SGD(model.parameters(), lr=learning_rate)
     criterion = nn.MSELoss()
