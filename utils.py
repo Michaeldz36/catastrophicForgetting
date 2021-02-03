@@ -6,8 +6,8 @@ from sklearn.preprocessing import StandardScaler
 
 
 class Setup():
-    N = 50
-    P = 70
+    N = 13
+    P = 13
     alpha = P / N
 
     sgm_w0 = 1.

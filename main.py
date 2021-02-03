@@ -16,8 +16,8 @@ teacher2 = Teacher()
 ### Hyperparameters
 batch_size=setup.P
 learning_rate = 1e-2
-epochs1 = 50
-epochs2=50
+epochs1 = 500
+epochs2=500
 
 
 def main():
@@ -80,6 +80,15 @@ def main():
 
     plt.figure()
     pd.DataFrame(history2).plot(figsize=(8, 5))
+    plt.grid(True)
+    # plt.gca().set_ylim(0, 1)
+    plt.show()
+
+    full_history=dict()
+    for key in history1.keys():
+        full_history[key]=history1[key]+history2[key]
+    plt.figure()
+    pd.DataFrame(full_history).plot(figsize=(8, 5))
     plt.grid(True)
     # plt.gca().set_ylim(0, 1)
     plt.show()

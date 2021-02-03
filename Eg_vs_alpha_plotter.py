@@ -16,8 +16,8 @@ teacher2 = Teacher()
 ### Hyperparameters
 batch_size=setup.N
 learning_rate = 1e-2
-epochs1 = 50
-epochs2=50
+epochs1 = 500
+epochs2=500
 
 
 def main(alpha_ratio):
