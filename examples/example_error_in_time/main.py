@@ -79,11 +79,12 @@ def main():
 
 if __name__ == '__main__':
     for i in range(10):
-        n_runs=100
+        n_runs=10
         realisations=[]
         for r in range(n_runs):
             history=main()
-        realisations.append(history)
+            realisations.append(history)
+        # TODO: check if doing correctly (unit test)
         # # averaging over teacher realisations
         c=Counter()
         for r in realisations:

@@ -17,8 +17,8 @@ teacher2 = Teacher()
 ### Hyperparameters
 batch_size=setup.N
 learning_rate = 1e-2
-epochs1 = 500
-epochs2=500
+epochs1 = 50
+epochs2=50
 
 
 def main(alpha_ratio):
@@ -85,18 +85,13 @@ def make_data():
 
 if __name__ == '__main__':
     n_runs = 100
-    realisations = []
+    total = np.empty(25)
     for r in range(n_runs):
-        eg_vs_alpha = make_data()
-    realisations.append(eg_vs_alpha)
-    # # averaging over teacher realisations
-    c = Counter()
-    for r in realisations:
-        c.update(r)
-    errors = pd.DataFrame(c) / n_runs
-    errors.plot(figsize=(8, 5))
+        total+= np.array(make_data())
+        print(total)
+    average=total/n_runs
+    pd.DataFrame(average).plot(figsize=(8, 5))
     plt.grid(True)
-    plt.xlabel("alpha")
+    plt.xlabel("alpha * 10") #TODO: fix x axis
     plt.ylabel("Mean Squared Error")
-    # plt.gca().set_ylim(0, 1)
     plt.show()
