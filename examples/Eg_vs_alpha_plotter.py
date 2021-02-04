@@ -1,12 +1,10 @@
 import torch.nn as nn
 import torch.optim as optim
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from utils.utils import Setup, Teacher, Student, PrepareData, \
     load_data, train_valid_loop
 from sklearn.model_selection import train_test_split
-from collections import Counter
 import numpy as np
 
 
@@ -87,8 +85,8 @@ if __name__ == '__main__':
     n_runs = 100
     total = np.empty(25)
     for r in range(n_runs):
+        print("Run {}/{}".format(r, n_runs))
         total+= np.array(make_data())
-        print(total)
     average=total/n_runs
     pd.DataFrame(average).plot(figsize=(8, 5))
     plt.grid(True)
