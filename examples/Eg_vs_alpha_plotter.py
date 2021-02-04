@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 from utils.utils import Setup, Teacher, Student, PrepareData, \
     load_data, train_valid_loop
 from sklearn.model_selection import train_test_split
-
+from collections import Counter
+import numpy as np
 
 
 setup = Setup()
@@ -74,15 +75,28 @@ def main(alpha_ratio):
                                )
     return history2['E_t'][-1]
 
+def make_data():
+    eg_vs_alpha = []
+    for alpha_ratio in range(1, 25 + 1):  # TODO: crashes for small N,P
+        Eg = main(alpha_ratio)
+        eg_vs_alpha.append(Eg)
+    return eg_vs_alpha
 
 
 if __name__ == '__main__':
-    eg_vs_alpha = []
-    for alpha_ratio in range(1, 25 + 1): #TODO: crashes for small N,P
-        Eg=main(alpha_ratio)
-        eg_vs_alpha.append(Eg)
-
-    pd.DataFrame(eg_vs_alpha).plot(figsize=(8, 5))
+    n_runs = 100
+    realisations = []
+    for r in range(n_runs):
+        eg_vs_alpha = make_data()
+    realisations.append(eg_vs_alpha)
+    # # averaging over teacher realisations
+    c = Counter()
+    for r in realisations:
+        c.update(r)
+    errors = pd.DataFrame(c) / n_runs
+    errors.plot(figsize=(8, 5))
     plt.grid(True)
+    plt.xlabel("alpha")
+    plt.ylabel("Mean Squared Error")
     # plt.gca().set_ylim(0, 1)
     plt.show()

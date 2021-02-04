@@ -1,11 +1,13 @@
 import torch.nn as nn
 import torch.optim as optim
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from utils.utils import Setup, Teacher, Student, PrepareData, \
     load_data, train_valid_loop
 from sklearn.model_selection import train_test_split
+from collections import Counter
+import numpy as np
+
 
 
 
@@ -16,8 +18,8 @@ teacher2 = Teacher()
 ### Hyperparameters
 batch_size=setup.P
 learning_rate = 1e-2
-epochs1 = 500
-epochs2=500
+epochs1 = 100
+epochs2 = 100
 
 
 def main():
@@ -35,14 +37,9 @@ def main():
     X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size = 0.33, random_state = 42)
     X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size = 0.33, random_state = 42)
 
-    X_train, Y_train = np.c_[X1_train.T, X2_train.T].T, np.r_[Y1_train, Y2_train]
-    X_test, Y_test = np.c_[X1_test.T, X2_test.T].T, np.r_[Y1_test, Y2_test]
-
-
     model = Student(n_features=setup.N, sgm_e=setup.sgm_e)
     optimizer = optim.SGD(model.parameters(), lr=learning_rate)
     criterion = nn.MSELoss()
-
 
     train_ds1 = PrepareData(X1_train, y=Y1_train, scale_X=True)
     generalize_ds1 = PrepareData(X1_test, y=Y1_test, scale_X=True)
@@ -75,15 +72,26 @@ def main():
 
     full_history=dict()
     for key in history1.keys():
-        full_history[key]=history1[key]+history2[key]
-    plt.figure()
+        full_history[key]=np.array(history1[key]+history2[key])
+    return full_history
 
-    pd.DataFrame(full_history).plot(figsize=(8, 5))
-    plt.grid(True)
-    plt.xlabel("Epoch")
-    plt.ylabel("Mean Squared Error")
-    # plt.gca().set_ylim(0, 1)
-    plt.show()
+
 
 if __name__ == '__main__':
-    main()
+    for i in range(10):
+        n_runs=100
+        realisations=[]
+        for r in range(n_runs):
+            history=main()
+        realisations.append(history)
+        # # averaging over teacher realisations
+        c=Counter()
+        for r in realisations:
+            c.update(r)
+        errors=pd.DataFrame(c)/n_runs
+        errors.plot(figsize=(8, 5))
+        plt.grid(True)
+        plt.xlabel("Epoch")
+        plt.ylabel("Mean Squared Error")
+        # plt.gca().set_ylim(0, 1)
+        plt.show()
