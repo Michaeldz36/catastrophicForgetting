@@ -47,7 +47,7 @@ def main():
     data_loaders1, data_lengths1 = load_data(train_ds=train_ds1, valid_ds=generalize_ds1,
                              batch_size=X1_train.shape[0])
 
-
+    print("Lesson 1/2")
     history1 = train_valid_loop(data_loaders=data_loaders1,
                      data_lengths=data_lengths1,
                      n_epochs=epochs1,
@@ -61,7 +61,7 @@ def main():
     generalize_ds2 = PrepareData(X2_test, y=Y2_test, scale_X=True)
     data_loaders2, data_lengths2 = load_data(train_ds=train_ds2, valid_ds=generalize_ds2,
                                             batch_size=X2_train.shape[0])
-
+    print('Lesson 2/2')
     history2 = train_valid_loop(data_loaders=data_loaders2,
                                 data_lengths=data_lengths2,
                                 n_epochs=epochs2,
@@ -95,9 +95,10 @@ def main():
 
 if __name__ == '__main__':
     for i in range(10):
-        n_runs=10
+        n_runs=100
         realisations=[]
         for r in range(n_runs):
+            print('Realisation {}/{}'.format(r, n_runs))
             history=main()
             realisations.append(history)
         # TODO: check if doing correctly (unit test)
