@@ -13,83 +13,88 @@ teacher1 = Teacher()
 teacher2 = Teacher()
 
 ### Hyperparameters
-batch_size=setup.N
+batch_size=setup.P
 learning_rate = 1e-2
-epochs1 = 50
-epochs2=50
+epochs1 = 500
+epochs2 = 500
+sgm_e = setup.sgm_e
+sgm_w1 = setup.sgm_w * 1
+sgm_w2 = setup.sgm_w * 2
 
+N = setup.N * 1
 
-def main(alpha_ratio):
-    N1 = setup.N * 1  # for now N=N1=N2
-    N2 = setup.N * 1  # possible TODO: make N=max(N1,N2), X=[max(X1,X2),min(X1,X2).concat(zeros)]
+def main(alpha):
+    P1 = int(alpha * N)
+    P2 = int(alpha * N)
 
-    P1 = int(alpha_ratio/10 * setup.N)
-    P2 = int(alpha_ratio/10 * setup.N * 2)
-
-    sgm_w1 = setup.sgm_w * 1
-    sgm_w2 = setup.sgm_w * 2
-
-    X1, Y1 = teacher1.build_teacher(N1, P1, sgm_w1, setup.sgm_e)
-    X2, Y2 = teacher1.build_teacher(N2, P2, sgm_w2, setup.sgm_e)
+    X1, Y1 = teacher1.build_teacher(N, P1, sgm_w1, sgm_e)
+    X2, Y2 = teacher1.build_teacher(N, P2, sgm_w2, sgm_e)
     X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size = 0.33, random_state = 42)
     X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size = 0.33, random_state = 42)
 
-    X_train, Y_train = np.c_[X1_train.T, X2_train.T].T, np.r_[Y1_train, Y2_train]
-    X_test, Y_test = np.c_[X1_test.T, X2_test.T].T, np.r_[Y1_test, Y2_test]
-
-
-    model = Student(n_features=setup.N, sgm_e=setup.sgm_e)
+    model = Student(n_features=N, sgm_e=sgm_e)
     optimizer = optim.SGD(model.parameters(), lr=learning_rate)
     criterion = nn.MSELoss()
 
-
+    # datasets for training the student network
     train_ds1 = PrepareData(X1_train, y=Y1_train, scale_X=True)
-    generalize_ds1 = PrepareData(X1_test, y=Y1_test, scale_X=True)
-    data_loaders1, data_lengths1 = load_data(train_ds=train_ds1, valid_ds=generalize_ds1,
-                             batch_size=X1_train.shape[0])
+    train_ds2 = PrepareData(X2_train, y=Y2_train, scale_X=True)
+    # datasets for validation errors
+    valid_ds1 = PrepareData(X1_test, y=Y1_test, scale_X=True)
+    valid_ds2 = PrepareData(X2_test, y=Y2_test, scale_X=True)
+    # datasets for cross generalization error, TODO: not used in this simulation, make the main loop skip them
+    cross_gen_ds1 = train_ds2
+    cross_gen_ds2 = train_ds1
 
+    print("Lesson 1/2")
+    data_loaders1, data_lengths1 = load_data(train_ds=train_ds1, valid_ds=valid_ds1,
+                                             generalize_ds=cross_gen_ds1, batch_size=X1_train.shape[0])
 
-    history1 = train_valid_loop(data_loaders=data_loaders1,
+    train_valid_loop(data_loaders=data_loaders1,
                      data_lengths=data_lengths1,
                      n_epochs=epochs1,
                      optimizer=optimizer,
                      model=model,
                      criterion=criterion,
-                     e_print=1
-                     )
+                     e_print=50
+                    )
 
-    train_ds2 = PrepareData(X2_train, y=Y2_train, scale_X=True)
-    generalize_ds2 = PrepareData(X2_test, y=Y2_test, scale_X=True)
-    data_loaders2, data_lengths2 = load_data(train_ds=train_ds2, valid_ds=generalize_ds2,
-                                           batch_size=X2_train.shape[0])
+    print('Lesson 2/2')
+    data_loaders2, data_lengths2 = load_data(train_ds=train_ds2, valid_ds=valid_ds2,
+                                             generalize_ds=cross_gen_ds2, batch_size=X2_train.shape[0])
 
-    history2 = train_valid_loop(data_loaders=data_loaders2,
+    history = train_valid_loop(data_loaders=data_loaders2,
                                data_lengths=data_lengths2,
                                n_epochs=epochs2,
                                optimizer=optimizer,
                                model=model,
                                criterion=criterion,
-                               e_print=1
-                               )
-    return history2['E_t'][-1]
+                               e_print=50,
+                               pretrained_data=None
+                              )
 
-def make_data():
+    return history['E_train'][-1]
+
+def make_data(resolution=10):
     eg_vs_alpha = []
-    for alpha_ratio in range(1, 25 + 1):  # TODO: crashes for small N,P
-        Eg = main(alpha_ratio)
+    for alpha in np.linspace(1, 2.5, resolution):  # TODO: crashes for small N,P
+        Eg = main(alpha)
         eg_vs_alpha.append(Eg)
     return eg_vs_alpha
 
 
 if __name__ == '__main__':
     n_runs = 100
-    total = np.empty(25)
+    resolution = 20
+    total = np.empty(resolution)
     for r in range(n_runs):
         print("Run {}/{}".format(r, n_runs))
-        total+= np.array(make_data())
+        total += np.array(make_data(resolution))
     average=total/n_runs
-    pd.DataFrame(average).plot(figsize=(8, 5))
+    # pd.DataFrame(average).plot(figsize=(8, 5))
+    plt.plot(np.linspace(1, 2.5, resolution), average)
     plt.grid(True)
-    plt.xlabel("alpha * 10") #TODO: fix x axis
+    plt.xlabel("alpha")
     plt.ylabel("Mean Squared Error")
+    plt.title("(MSE averaged over {} realisations)".format(n_runs))
     plt.show()

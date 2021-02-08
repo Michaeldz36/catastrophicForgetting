@@ -91,22 +91,22 @@ def load_data(train_ds, valid_ds, generalize_ds, batch_size):
                           sampler=None)
     gen_loader = DataLoader(generalize_ds, batch_size=batch_size,
                           sampler=None)
-    data_loaders = {"train": train_loader, "val": validation_loader, "generalize": gen_loader}
-    data_lengths = {"train": len(train_ds), "val": len(valid_ds), "generalize": len(generalize_ds)}
+    data_loaders = {"train": train_loader, "val": validation_loader, "cross_gen": gen_loader}
+    data_lengths = {"train": len(train_ds), "val": len(valid_ds), "cross_gen": len(generalize_ds)}
     return data_loaders, data_lengths
 
 
 def train_valid_loop(data_loaders, data_lengths, n_epochs,
                      optimizer, model, criterion, e_print=1,
                      pretrained_data=None):
-    history={"E_t":[], "E_v":[], "E_g":[]}
+    history={"E_train":[], "E_valid":[], "E_cross_g":[]}
     for epoch in range(1, n_epochs + 1):
         if epoch % e_print == 0:
             print('Epoch {}/{}'.format(epoch, n_epochs))
             print('-' * 10)
 
         # Each epoch has a training and validation phase
-        for phase in ['train', 'val', 'generalize']:
+        for phase in ['train', 'val', 'cross_gen']:
             if phase == 'train':
                 model.train(True)  # Set model to training mode
             else:
@@ -143,11 +143,11 @@ def train_valid_loop(data_loaders, data_lengths, n_epochs,
 
             epoch_loss = running_loss / data_lengths[phase]
             if phase == 'train':
-                history["E_t"].append(epoch_loss)
+                history["E_train"].append(epoch_loss)
             elif phase == 'val':
-                history["E_v"].append(epoch_loss)
-            elif phase == 'generalize':
-                history["E_g"].append(epoch_loss)
+                history["E_valid"].append(epoch_loss)
+            elif phase == 'cross_gen':
+                history["E_cross_g"].append(epoch_loss)
             if epoch % e_print == 0:
                 print('{} Loss: {:.4f}'.format(phase, epoch_loss))
         if epoch % e_print == 0:
