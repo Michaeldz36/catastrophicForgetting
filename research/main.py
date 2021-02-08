@@ -50,7 +50,8 @@ def main(N1=N1, N2=N2, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, 
     cross_gen_ds2 = train_ds1
 
 
-    print("Lesson 1/2")
+    print("Lesson 1/2:")
+    print('-' * 20)
     data_loaders1, data_lengths1 = load_data(train_ds=train_ds1, valid_ds=valid_ds1,
                                              generalize_ds=cross_gen_ds1, batch_size=X1_train.shape[0])
 
@@ -64,7 +65,8 @@ def main(N1=N1, N2=N2, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, 
                                )
 
 
-    print('Lesson 2/2')
+    print('Lesson 2/2:')
+    print('-' * 20)
     data_loaders2, data_lengths2 = load_data(train_ds=train_ds2, valid_ds=valid_ds2,
                                              generalize_ds=cross_gen_ds2, batch_size=X2_train.shape[0])
 
@@ -82,7 +84,21 @@ def main(N1=N1, N2=N2, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, 
         full_history[key]=np.array(history1[key]+history2[key])
     return full_history
 
-def plot_history(errors):
+def simulate(syllabus ,n_runs):
+    realisations = []
+    for r in range(n_runs):
+        print('Realisation {}/{}'.format(r, n_runs))
+        history = main(*syllabus)
+        realisations.append(history)
+    # TODO: check (unit test)
+    c = Counter()
+    for r in realisations:
+        c.update(r)
+    # averaging over teacher realisations
+    errors = pd.DataFrame(c) / n_runs
+    return errors
+
+def plot_history(errors, n_runs):
     errors.plot(figsize=(8, 5))
     # plt.axhline(y=sgm_e, color='r', linestyle='-')
     plt.grid(True)
@@ -93,16 +109,7 @@ def plot_history(errors):
     plt.show()
 
 if __name__ == '__main__':
+    syllabus=[N1, N2, P1, P2, sgm_w1, sgm_w2, sgm_e, lr, epochs1, epochs2]
     n_runs=10
-    realisations=[]
-    for r in range(n_runs):
-        print('Realisation {}/{}'.format(r, n_runs))
-        history=main()
-        realisations.append(history)
-    # TODO: check (unit test)
-    c=Counter()
-    for r in realisations:
-        c.update(r)
-    # averaging over teacher realisations
-    errors = pd.DataFrame(c)/n_runs
-    plot_history(errors)
+    errors = simulate(syllabus, n_runs)
+    plot_history(errors, n_runs)
