@@ -55,13 +55,13 @@ def main(N1=N1, N2=N2, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, 
                                              generalize_ds=cross_gen_ds1, batch_size=X1_train.shape[0])
 
     history1 = train_valid_loop(data_loaders=data_loaders1,
-                     data_lengths=data_lengths1,
-                     n_epochs=epochs1,
-                     optimizer=optimizer,
-                     model=model,
-                     criterion=criterion,
-                     e_print=50
-                     )
+                                data_lengths=data_lengths1,
+                                n_epochs=epochs1,
+                                optimizer=optimizer,
+                                model=model,
+                                criterion=criterion,
+                                e_print=50
+                               )
 
 
     print('Lesson 2/2')
@@ -74,8 +74,7 @@ def main(N1=N1, N2=N2, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, 
                                 optimizer=optimizer,
                                 model=model,
                                 criterion=criterion,
-                                e_print=50,
-                                pretrained_data=None
+                                e_print=50
                                 )
 
     full_history=dict()
