@@ -6,8 +6,8 @@ from sklearn.preprocessing import StandardScaler
 
 
 class Setup():
-    N = 30
-    P = 30
+    N = 300
+    P = 300
     alpha = P / N
 
     sgm_w0 = 1.
@@ -94,7 +94,9 @@ def load_data(train_ds, valid_ds, batch_size):
     return data_loaders, data_lengths
 
 
-def train_valid_loop(data_loaders, data_lengths, n_epochs, optimizer, model, criterion, e_print=1):
+def train_valid_loop(data_loaders, data_lengths, n_epochs,
+                     optimizer, model, criterion, e_print=1,
+                     pretrained_data=None):
     history={"E_t":[], "E_g":[]}
     for epoch in range(1, n_epochs + 1):
         if epoch % e_print == 0:

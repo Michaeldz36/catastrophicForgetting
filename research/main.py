@@ -18,8 +18,8 @@ teacher2 = Teacher()
 ### Hyperparameters
 batch_size=setup.P
 learning_rate = 1e-2
-epochs1 = 100
-epochs2 = 100
+epochs1 = 250
+epochs2 = 250
 
 
 def main():
@@ -34,6 +34,7 @@ def main():
 
     X1, Y1 = teacher1.build_teacher(N1, P1, sgm_w1, setup.sgm_e)
     X2, Y2 = teacher1.build_teacher(N2, P2, sgm_w2, setup.sgm_e)
+    # TODO: check correlation between X1, X2
     X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size = 0.33, random_state = 42)
     X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size = 0.33, random_state = 42)
 
@@ -59,20 +60,35 @@ def main():
     train_ds2 = PrepareData(X2_train, y=Y2_train, scale_X=True)
     generalize_ds2 = PrepareData(X2_test, y=Y2_test, scale_X=True)
     data_loaders2, data_lengths2 = load_data(train_ds=train_ds2, valid_ds=generalize_ds2,
-                                           batch_size=X2_train.shape[0])
+                                            batch_size=X2_train.shape[0])
 
     history2 = train_valid_loop(data_loaders=data_loaders2,
-                               data_lengths=data_lengths2,
-                               n_epochs=epochs2,
-                               optimizer=optimizer,
-                               model=model,
-                               criterion=criterion,
-                               e_print=1
-                               )
+                                data_lengths=data_lengths2,
+                                n_epochs=epochs2,
+                                optimizer=optimizer,
+                                model=model,
+                                criterion=criterion,
+                                e_print=1,
+                                pretrained_data=None
+                                )
+
+    data_loaders3, data_lengths3 = load_data(train_ds=train_ds2, valid_ds=generalize_ds1,
+                                             batch_size=X2_train.shape[0])
+
+    history3 = train_valid_loop(data_loaders=data_loaders3,
+                                data_lengths=data_lengths3,
+                                n_epochs=epochs2,
+                                optimizer=optimizer,
+                                model=model,
+                                criterion=criterion,
+                                e_print=1,
+                                pretrained_data=None
+                                )
 
     full_history=dict()
     for key in history1.keys():
         full_history[key]=np.array(history1[key]+history2[key])
+    full_history["E_g12"]=np.array(history1["E_g"]+history3["E_g"])
     return full_history
 
 
