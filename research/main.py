@@ -11,8 +11,8 @@ import numpy as np
 setup = Setup()
 
 ### Hyperparameters
-batch_size=setup.P
-learning_rate = 1e-2
+# batch_size=setup.P
+lr = 1e-2
 epochs1 = 500
 epochs2 = 500
 sgm_e = setup.sgm_e
@@ -25,7 +25,7 @@ N2 = setup.N * 1  # possible TODO: make N=max(N1,N2), X=[max(X1,X2),min(X1,X2).c
 P1 = setup.P * 1
 P2 = setup.P * 1
 
-def main(N1, N2, P1, P2, sgm_w1, sgm_w2, sgm_e, learning_rate, epochs1, epochs2):
+def main(N1=N1, N2=N2, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, lr=lr, epochs1=epochs1, epochs2=epochs2):
     teacher1 = Teacher()
     teacher2 = Teacher()
 
@@ -36,7 +36,7 @@ def main(N1, N2, P1, P2, sgm_w1, sgm_w2, sgm_e, learning_rate, epochs1, epochs2)
     X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size = 0.33, random_state = 42)
 
     model = Student(n_features=N1, sgm_e=sgm_e)
-    optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+    optimizer = optim.SGD(model.parameters(), lr=lr)
     criterion = nn.MSELoss()
 
     # datasets for training the student network
