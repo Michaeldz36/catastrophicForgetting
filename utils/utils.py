@@ -6,13 +6,14 @@ from sklearn.preprocessing import StandardScaler
 
 
 class Setup():
-    N = 300
-    P = 300
+    N = 50
+    P = 50
     alpha = P / N
 
-    sgm_w0 = 1.
+    # TODO: find good starting values
+    sgm_e = 0.2
+    sgm_w0 = 0.
     sgm_w = 1.5
-    sgm_e = 1.2
 
     SNR = (sgm_w / sgm_e) ** 2
     INR = (sgm_w0 / sgm_w) ** 2
@@ -20,8 +21,7 @@ class Setup():
 
 class Teacher():
     def build_teacher(self, N, P, sgm_w, sgm_e):
-        np.random.seed(42) # for repruducability
-
+        # np.random.seed(42) # for repruducability
         w_bar = np.random.normal(0, sgm_w, N)
         X = np.random.normal(0, np.sqrt(1 / N), [P, N])
         eps = np.random.normal(0, sgm_e, P)
@@ -84,27 +84,29 @@ def training_loop(X_train,Y_train, n_epochs, optimizer, model, loss_fn):
     return history
 
 
-def load_data(train_ds, valid_ds, batch_size):
+def load_data(train_ds, valid_ds, generalize_ds, batch_size):
     train_loader = DataLoader(train_ds, batch_size=batch_size,
                            sampler=None)
     validation_loader = DataLoader(valid_ds, batch_size=batch_size,
                           sampler=None)
-    data_loaders = {"train": train_loader, "val": validation_loader}
-    data_lengths = {"train": len(train_ds), "val": len(valid_ds)}
+    gen_loader = DataLoader(generalize_ds, batch_size=batch_size,
+                          sampler=None)
+    data_loaders = {"train": train_loader, "val": validation_loader, "generalize": gen_loader}
+    data_lengths = {"train": len(train_ds), "val": len(valid_ds), "generalize": len(generalize_ds)}
     return data_loaders, data_lengths
 
 
 def train_valid_loop(data_loaders, data_lengths, n_epochs,
                      optimizer, model, criterion, e_print=1,
                      pretrained_data=None):
-    history={"E_t":[], "E_g":[]}
+    history={"E_t":[], "E_v":[], "E_g":[]}
     for epoch in range(1, n_epochs + 1):
         if epoch % e_print == 0:
             print('Epoch {}/{}'.format(epoch, n_epochs))
             print('-' * 10)
 
         # Each epoch has a training and validation phase
-        for phase in ['train', 'val']:
+        for phase in ['train', 'val', 'generalize']:
             if phase == 'train':
                 model.train(True)  # Set model to training mode
             else:
@@ -143,6 +145,8 @@ def train_valid_loop(data_loaders, data_lengths, n_epochs,
             if phase == 'train':
                 history["E_t"].append(epoch_loss)
             elif phase == 'val':
+                history["E_v"].append(epoch_loss)
+            elif phase == 'generalize':
                 history["E_g"].append(epoch_loss)
             if epoch % e_print == 0:
                 print('{} Loss: {:.4f}'.format(phase, epoch_loss))
