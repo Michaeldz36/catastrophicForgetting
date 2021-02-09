@@ -1,27 +1,28 @@
 import torch.nn as nn
 import torch.optim as optim
-import pandas as pd
 import matplotlib.pyplot as plt
 from utils.utils import Setup, Teacher, Student, PrepareData, \
     load_data, train_valid_loop
 from sklearn.model_selection import train_test_split
 import numpy as np
-
+#TODO: unify with code from main.py
 
 setup = Setup()
 teacher1 = Teacher()
 teacher2 = Teacher()
 
 ### Hyperparameters
-batch_size=setup.P
-learning_rate = 1e-2
-epochs1 = 100
-epochs2 = 100
+lr = 1e-2
+epochs1 = 250
+epochs2 = 250
 sgm_e = setup.sgm_e
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
 
-N = setup.N * 1
+N = 20
+
+P1 = 20
+P2 = 20
 
 def main(alpha):
     P1 = int(alpha * N)
@@ -33,7 +34,7 @@ def main(alpha):
     X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size = 0.33, random_state = 42)
 
     model = Student(n_features=N, sgm_e=sgm_e)
-    optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+    optimizer = optim.SGD(model.parameters(), lr=lr)
     criterion = nn.MSELoss()
 
     # datasets for training the student network
@@ -77,23 +78,31 @@ def main(alpha):
 def make_data(resolution=10):
     eg_vs_alpha = []
     for alpha in np.linspace(1, 2.5, resolution):  # TODO: crashes for small N,P
+        print('-'*42)
+        print("Calculating for alpha = {}, finished {} %".format(round(alpha,2), round((alpha-1)/(1.5)*100,2)))
+        print('-'*42)
         Eg = main(alpha)
         eg_vs_alpha.append(Eg)
     return eg_vs_alpha
 
-
-if __name__ == '__main__':
-    n_runs = 1
-    resolution = 30
+def simulate(n_runs, resolution):
     total = np.empty(resolution)
     for r in range(n_runs):
         print("Run {}/{}".format(r, n_runs))
         total += np.array(make_data(resolution))
-    average=total/n_runs
-    # pd.DataFrame(average).plot(figsize=(8, 5))
+    average = total/n_runs
+    return average
+
+def make_plot(average, resolution):
     plt.plot(np.linspace(1, 2.5, resolution), average)
     plt.grid(True)
     plt.xlabel("alpha")
     plt.ylabel("Mean Squared Error")
     plt.title("(MSE averaged over {} realisations)".format(n_runs))
     plt.show()
+
+if __name__ == '__main__':
+    n_runs = 1  #used for averaging over realisations
+    resolution = 20 #for how many different alphas in range [1, 2.5] simulation is performed
+    average = simulate(n_runs, resolution)
+    make_plot(average, resolution)
