@@ -17,15 +17,16 @@ epochs1 = 150
 epochs2 = 150
 sgm_e = setup.sgm_e
 sgm_w1 = setup.sgm_w * 1
-sgm_w2 = setup.sgm_w * 2
+sgm_w2 = setup.sgm_w * 1/3
 
 N = 20
-
+# TODO: WIP shallow/deep linear network
+Depth=1
 P1 = 20
 P2 = 40
 
 
-def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, lr=lr, epochs1=epochs1, epochs2=epochs2):
+def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, lr=lr, epochs1=epochs1, epochs2=epochs2, D=Depth):
     teacher1 = Teacher()
     teacher2 = Teacher()
 
@@ -35,7 +36,7 @@ def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, lr=lr, ep
     X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size=0.33, random_state=42)
     X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size=0.33, random_state=42)
 
-    model = Student(n_features=N, sgm_e=sgm_e)
+    model = Student(n_features=N, sgm_e=sgm_e, D = D)
     optimizer = optim.SGD(model.parameters(), lr=lr)
     criterion = nn.MSELoss()
 
@@ -110,7 +111,7 @@ def plot_history(errors, n_runs):
 
 
 if __name__ == '__main__':
-    syllabus = [N, P1, P2, sgm_w1, sgm_w2, sgm_e, lr, epochs1, epochs2]
+    syllabus = [N, P1, P2, sgm_w1, sgm_w2, sgm_e, lr, epochs1, epochs2, Depth]
     n_runs = 100
     errors = simulate(syllabus, n_runs)
     plot_history(errors, n_runs)
