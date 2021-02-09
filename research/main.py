@@ -14,28 +14,27 @@ setup = Setup()
 # batch_size=setup.P
 lr = 1e-1
 epochs1 = 100
-epochs2 = 100
+epochs2 = 0
 sgm_e = setup.sgm_e
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
 
-N1 = setup.N * 1  # for now N=N1=N2
-N2 = setup.N * 1  # possible TODO: make N=max(N1,N2), X=[max(X1,X2),min(X1,X2).concat(zeros)]
+N = setup.N * 1
 
 P1 = setup.P * 1
 P2 = setup.P * 1
 
-def main(N1=N1, N2=N2, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, lr=lr, epochs1=epochs1, epochs2=epochs2):
+def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, lr=lr, epochs1=epochs1, epochs2=epochs2):
     teacher1 = Teacher()
     teacher2 = Teacher()
 
-    X1, Y1 = teacher1.build_teacher(N1, P1, sgm_w1, sgm_e)
-    X2, Y2 = teacher2.build_teacher(N2, P2, sgm_w2, sgm_e)
+    X1, Y1 = teacher1.build_teacher(N, P1, sgm_w1, sgm_e)
+    X2, Y2 = teacher2.build_teacher(N, P2, sgm_w2, sgm_e)
     # TODO: check correlation between X1, X2
     X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size = 0.33, random_state = 42)
     X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size = 0.33, random_state = 42)
 
-    model = Student(n_features=N1, sgm_e=sgm_e)
+    model = Student(n_features=N, sgm_e=sgm_e)
     optimizer = optim.SGD(model.parameters(), lr=lr)
     criterion = nn.MSELoss()
 
@@ -109,7 +108,7 @@ def plot_history(errors, n_runs):
     plt.show()
 
 if __name__ == '__main__':
-    syllabus=[N1, N2, P1, P2, sgm_w1, sgm_w2, sgm_e, lr, epochs1, epochs2]
+    syllabus=[N, P1, P2, sgm_w1, sgm_w2, sgm_e, lr, epochs1, epochs2]
     n_runs=1
     errors = simulate(syllabus, n_runs)
     plot_history(errors, n_runs)

@@ -6,14 +6,14 @@ from sklearn.preprocessing import StandardScaler
 
 
 class Setup():
-    N = 500
+    N = 550
     P = 500
     alpha = P / N
 
     # TODO: find good starting values
     sgm_e = 0.5
     sgm_w0 = 0.
-    sgm_w = 1.5
+    sgm_w = 1.2
 
     SNR = (sgm_w / sgm_e) ** 2
     INR = (sgm_w0 / sgm_w) ** 2
