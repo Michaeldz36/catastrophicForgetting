@@ -1,5 +1,5 @@
 # catastrophicForgetting project
-Main simulation is currently in [Main](main.py)
+Main simulation is currently in [Main](research/main.py)
 ![alt text](https://github.com/Michaeldz36/catastrophicForgetting/blob/master/docs/figs/errors2.png?raw=true)
 
 
