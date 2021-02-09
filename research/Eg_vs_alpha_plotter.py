@@ -15,8 +15,8 @@ teacher2 = Teacher()
 ### Hyperparameters
 batch_size=setup.P
 learning_rate = 1e-2
-epochs1 = 500
-epochs2 = 500
+epochs1 = 100
+epochs2 = 100
 sgm_e = setup.sgm_e
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
@@ -69,8 +69,7 @@ def main(alpha):
                                optimizer=optimizer,
                                model=model,
                                criterion=criterion,
-                               e_print=50,
-                               pretrained_data=None
+                               e_print=50
                               )
 
     return history['E_train'][-1]
@@ -84,8 +83,8 @@ def make_data(resolution=10):
 
 
 if __name__ == '__main__':
-    n_runs = 100
-    resolution = 20
+    n_runs = 1
+    resolution = 30
     total = np.empty(resolution)
     for r in range(n_runs):
         print("Run {}/{}".format(r, n_runs))

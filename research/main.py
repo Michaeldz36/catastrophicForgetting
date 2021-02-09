@@ -12,9 +12,9 @@ setup = Setup()
 
 ### Hyperparameters
 # batch_size=setup.P
-lr = 1e-2
-epochs1 = 500
-epochs2 = 500
+lr = 1e-1
+epochs1 = 100
+epochs2 = 100
 sgm_e = setup.sgm_e
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
@@ -110,6 +110,6 @@ def plot_history(errors, n_runs):
 
 if __name__ == '__main__':
     syllabus=[N1, N2, P1, P2, sgm_w1, sgm_w2, sgm_e, lr, epochs1, epochs2]
-    n_runs=10
+    n_runs=1
     errors = simulate(syllabus, n_runs)
     plot_history(errors, n_runs)

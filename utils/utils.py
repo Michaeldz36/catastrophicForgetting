@@ -6,12 +6,12 @@ from sklearn.preprocessing import StandardScaler
 
 
 class Setup():
-    N = 50
-    P = 50
+    N = 500
+    P = 500
     alpha = P / N
 
     # TODO: find good starting values
-    sgm_e = 0.2
+    sgm_e = 0.5
     sgm_w0 = 0.
     sgm_w = 1.5
 
