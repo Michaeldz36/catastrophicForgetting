@@ -5,18 +5,16 @@ from torch.utils.data import Dataset, DataLoader
 from sklearn.preprocessing import StandardScaler
 
 
-class Setup():
-    N = 550
-    P = 500
-    alpha = P / N
+class Setup():     # TODO: find good starting values
+    # alpha = P / N
+    N = 20
+    P = 20
 
-    # TODO: find good starting values
-    sgm_e = 0.5
+    # SNR = (sgm_w / sgm_e) ** 2
+    # INR = (sgm_w0 / sgm_w) ** 2
+    sgm_e = 1.1
     sgm_w0 = 0.
-    sgm_w = 1.2
-
-    SNR = (sgm_w / sgm_e) ** 2
-    INR = (sgm_w0 / sgm_w) ** 2
+    sgm_w = 1.5
 
 
 class Teacher():

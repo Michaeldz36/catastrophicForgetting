@@ -13,16 +13,17 @@ setup = Setup()
 ### Hyperparameters
 # batch_size=setup.P
 lr = 1e-1
-epochs1 = 100
-epochs2 = 0
+epochs1 = 150
+epochs2 = 150
 sgm_e = setup.sgm_e
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
 
-N = setup.N * 1
+N = 20
 
-P1 = setup.P * 1
-P2 = setup.P * 1
+P1 = 20
+P2 = 40
+
 
 def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, lr=lr, epochs1=epochs1, epochs2=epochs2):
     teacher1 = Teacher()
@@ -31,8 +32,8 @@ def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, lr=lr, ep
     X1, Y1 = teacher1.build_teacher(N, P1, sgm_w1, sgm_e)
     X2, Y2 = teacher2.build_teacher(N, P2, sgm_w2, sgm_e)
     # TODO: check correlation between X1, X2
-    X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size = 0.33, random_state = 42)
-    X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size = 0.33, random_state = 42)
+    X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size=0.33, random_state=42)
+    X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size=0.33, random_state=42)
 
     model = Student(n_features=N, sgm_e=sgm_e)
     optimizer = optim.SGD(model.parameters(), lr=lr)
@@ -48,7 +49,6 @@ def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, lr=lr, ep
     cross_gen_ds1 = train_ds2
     cross_gen_ds2 = train_ds1
 
-
     print("Lesson 1/2:")
     print('-' * 20)
     data_loaders1, data_lengths1 = load_data(train_ds=train_ds1, valid_ds=valid_ds1,
@@ -61,8 +61,7 @@ def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, lr=lr, ep
                                 model=model,
                                 criterion=criterion,
                                 e_print=50
-                               )
-
+                                )
 
     print('Lesson 2/2:')
     print('-' * 20)
@@ -78,12 +77,13 @@ def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, lr=lr, ep
                                 e_print=50
                                 )
 
-    full_history=dict()
+    full_history = dict()
     for key in history1.keys():
-        full_history[key]=np.array(history1[key]+history2[key])
+        full_history[key] = np.array(history1[key] + history2[key])
     return full_history
 
-def simulate(syllabus ,n_runs):
+
+def simulate(syllabus, n_runs):
     realisations = []
     for r in range(n_runs):
         print('Realisation {}/{}'.format(r, n_runs))
@@ -97,6 +97,7 @@ def simulate(syllabus ,n_runs):
     errors = pd.DataFrame(c) / n_runs
     return errors
 
+
 def plot_history(errors, n_runs):
     errors.plot(figsize=(8, 5))
     # plt.axhline(y=sgm_e, color='r', linestyle='-')
@@ -107,8 +108,9 @@ def plot_history(errors, n_runs):
     # plt.gca().set_ylim(0, 1)
     plt.show()
 
+
 if __name__ == '__main__':
-    syllabus=[N, P1, P2, sgm_w1, sgm_w2, sgm_e, lr, epochs1, epochs2]
-    n_runs=1
+    syllabus = [N, P1, P2, sgm_w1, sgm_w2, sgm_e, lr, epochs1, epochs2]
+    n_runs = 100
     errors = simulate(syllabus, n_runs)
     plot_history(errors, n_runs)
