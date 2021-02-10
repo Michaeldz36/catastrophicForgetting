@@ -74,27 +74,14 @@ class PrepareData(Dataset):
         return self.X[idx], self.y[idx]
 
 
-def training_loop(X_train,Y_train, n_epochs, optimizer, model, loss_fn):
-    history={"loss":[]}
-    for epoch in range(1, n_epochs + 1):
-        Y_pred = model(X_train)
-        loss_train = loss_fn(Y_pred, Y_train)
-        optimizer.zero_grad()
-        loss_train.backward()
-        optimizer.step()
-        history["loss"].append(loss_train.item())
-        if epoch == 1 or epoch % 10 == 0:
-            print(f"Epoch {epoch}, Training loss {loss_train.item():.4f}")
-    return history
-
-
-def load_data(train_ds, valid_ds, generalize_ds, batch_size):
+def load_data(train_ds, valid_ds=None, generalize_ds=None, batch_size=1):
     train_loader = DataLoader(train_ds, batch_size=batch_size,
                            sampler=None)
     validation_loader = DataLoader(valid_ds, batch_size=batch_size,
                           sampler=None)
     gen_loader = DataLoader(generalize_ds, batch_size=batch_size,
                           sampler=None)
+
     data_loaders = {"train": train_loader, "val": validation_loader, "cross_gen": gen_loader}
     data_lengths = {"train": len(train_ds), "val": len(valid_ds), "cross_gen": len(generalize_ds)}
     return data_loaders, data_lengths
@@ -107,9 +94,9 @@ def train_valid_loop(data_loaders, data_lengths, n_epochs,
         if epoch % e_print == 0:
             print('Epoch {}/{}'.format(epoch, n_epochs))
             print('-' * 10)
-
         # Each epoch has a training and validation phase
-        for phase in ['train', 'val', 'cross_gen']:
+        phases = ['train', 'val', 'cross_gen']
+        for phase in phases:
             if phase == 'train':
                 model.train(True)  # Set model to training mode
             else:
@@ -131,7 +118,9 @@ def train_valid_loop(data_loaders, data_lengths, n_epochs,
 
                 # calculate the loss between predicted and target
                 loss = criterion(y_pred, Y_true)
-
+                if loss.item()==float("inf"):
+                    print("Possibly too large lr!")
+                    raise ValueError
                 # zero the parameter (weight) gradients
                 optimizer.zero_grad()
 
@@ -143,7 +132,6 @@ def train_valid_loop(data_loaders, data_lengths, n_epochs,
 
                 # print loss statistics
                 running_loss += loss.item()
-
             epoch_loss = running_loss / data_lengths[phase]
             if phase == 'train':
                 history["E_train"].append(epoch_loss)
@@ -155,4 +143,18 @@ def train_valid_loop(data_loaders, data_lengths, n_epochs,
                 print('{} Loss: {:.4f}'.format(phase, epoch_loss))
         if epoch % e_print == 0:
             print('\n')
+    return history
+
+def training_loop(X_train, Y_train, n_epochs, optimizer, model, loss_fn):
+    #todo: legacy function, not used in the main simulation, generalize train_valid_loop
+    history={"loss":[]}
+    for epoch in range(1, n_epochs + 1):
+        Y_pred = model(X_train)
+        loss_train = loss_fn(Y_pred, Y_train)
+        optimizer.zero_grad()
+        loss_train.backward()
+        optimizer.step()
+        history["loss"].append(loss_train.item())
+        if epoch == 1 or epoch % 10 == 0:
+            print(f"Epoch {epoch}, Training loss {loss_train.item():.4f}")
     return history

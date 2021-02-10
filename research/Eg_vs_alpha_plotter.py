@@ -12,17 +12,17 @@ teacher1 = Teacher()
 teacher2 = Teacher()
 
 ### Hyperparameters
-lr = 1e-2
-epochs1 = 250
-epochs2 = 250
+lr = 1e-3
+epochs1 = 400
+epochs2 = 0
 sgm_e = setup.sgm_e
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
 
-N = 20
+N = 50
 
-P1 = 20
-P2 = 20
+P1 = 50
+P2 = 50
 
 def main(alpha):
     P1 = int(alpha * N)
@@ -51,7 +51,7 @@ def main(alpha):
     data_loaders1, data_lengths1 = load_data(train_ds=train_ds1, valid_ds=valid_ds1,
                                              generalize_ds=cross_gen_ds1, batch_size=X1_train.shape[0])
 
-    train_valid_loop(data_loaders=data_loaders1,
+    history1 = train_valid_loop(data_loaders=data_loaders1,
                      data_lengths=data_lengths1,
                      n_epochs=epochs1,
                      optimizer=optimizer,
@@ -64,7 +64,7 @@ def main(alpha):
     data_loaders2, data_lengths2 = load_data(train_ds=train_ds2, valid_ds=valid_ds2,
                                              generalize_ds=cross_gen_ds2, batch_size=X2_train.shape[0])
 
-    history = train_valid_loop(data_loaders=data_loaders2,
+    history2 = train_valid_loop(data_loaders=data_loaders2,
                                data_lengths=data_lengths2,
                                n_epochs=epochs2,
                                optimizer=optimizer,
@@ -72,14 +72,14 @@ def main(alpha):
                                criterion=criterion,
                                e_print=50
                               )
-
-    return history['E_train'][-1]
+    history=history1['E_valid']+history2['E_valid']
+    return history[-1]
 
 def make_data(resolution=10):
     eg_vs_alpha = []
     for alpha in np.linspace(1, 2.5, resolution):  # TODO: crashes for small N,P
         print('-'*42)
-        print("Calculating for alpha = {}, finished {} %".format(round(alpha,2), round((alpha-1)/(1.5)*100,2)))
+        print("Calculating for alpha = {}, finished {} % (in this realisation)".format(round(alpha,2), round((alpha-1)/(1.5)*100,2)))
         print('-'*42)
         Eg = main(alpha)
         eg_vs_alpha.append(Eg)
@@ -103,6 +103,6 @@ def make_plot(average, resolution):
 
 if __name__ == '__main__':
     n_runs = 1  #used for averaging over realisations
-    resolution = 20 #for how many different alphas in range [1, 2.5] simulation is performed
+    resolution = 42 #for how many different alphas in range [1, 2.5] simulation is performed
     average = simulate(n_runs, resolution)
     make_plot(average, resolution)

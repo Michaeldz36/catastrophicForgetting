@@ -12,18 +12,17 @@ setup = Setup()
 
 ### Hyperparameters
 # batch_size=setup.P
-lr = 1e-5
+lr = 1e-4
 epochs1 = 500
 epochs2 = 500
 sgm_e = setup.sgm_e
 sgm_w1 = setup.sgm_w * 1
-sgm_w2 = setup.sgm_w * 1/3
+sgm_w2 = setup.sgm_w * 2
 
-N = 40
-# TODO: WIP shallow/deep linear network, possible crash for to large lr
-depth=2
-P1 = 20
-P2 = 60
+N = 50
+depth = 2 # works for small enough lr
+P1 = 50
+P2 = 50
 
 
 def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, lr=lr, epochs1=epochs1, epochs2=epochs2, d=depth):
@@ -47,8 +46,8 @@ def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, lr=lr, ep
     valid_ds1 = PrepareData(X1_test, y=Y1_test, scale_X=True)
     valid_ds2 = PrepareData(X2_test, y=Y2_test, scale_X=True)
     # datasets for cross generalization error
-    cross_gen_ds1 = train_ds2
-    cross_gen_ds2 = train_ds1
+    cross_gen_ds1 = valid_ds2
+    cross_gen_ds2 = valid_ds1
 
     print("Lesson 1/2:")
     print('-' * 20)
@@ -63,7 +62,6 @@ def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, lr=lr, ep
                                 criterion=criterion,
                                 e_print=50
                                 )
-
     print('Lesson 2/2:')
     print('-' * 20)
     data_loaders2, data_lengths2 = load_data(train_ds=train_ds2, valid_ds=valid_ds2,
@@ -90,8 +88,8 @@ def simulate(syllabus, n_runs):
         print('Realisation {}/{}'.format(r, n_runs))
         history = main(*syllabus)
         realisations.append(history)
-    # TODO: check (unit test)
-    c = Counter()
+    # TODO: check (unit test), clean this clutter
+    c = Counter() # sums values in lists for each computed error
     for r in realisations:
         c.update(r)
     # averaging over teacher realisations
@@ -105,7 +103,8 @@ def plot_history(errors, n_runs):
     plt.grid(True)
     plt.xlabel("Epoch")
     plt.ylabel("Mean Squared Error")
-    plt.title("(MSE averaged over {} realisations)".format(n_runs))
+    plt.title("Linear network with {} layers depth \n"
+              "(MSE averaged over {} realisations)".format(depth, n_runs))
     # plt.gca().set_ylim(0, 1)
     plt.show()
 
