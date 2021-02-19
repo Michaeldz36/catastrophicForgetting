@@ -90,6 +90,8 @@ def load_data(train_ds, valid_ds=None, generalize_ds=None, batch_size=1):
 def train_valid_loop(data_loaders, data_lengths, n_epochs,
                      optimizer, model, criterion, e_print=1):
     history={"E_train":[], "E_valid":[], "E_cross_g":[]}
+    if n_epochs==0:
+        return history
     for epoch in range(1, n_epochs + 1):
         if epoch % e_print == 0:
             print('Epoch {}/{}'.format(epoch, n_epochs))
