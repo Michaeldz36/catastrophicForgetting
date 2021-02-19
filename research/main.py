@@ -12,7 +12,7 @@ setup = Setup()
 
 ### Hyperparameters
 # batch_size=setup.P
-lr = 1e-4
+lr = 1e-2
 epochs1 = 500
 epochs2 = 500
 sgm_e = setup.sgm_e
@@ -20,7 +20,7 @@ sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
 
 N = 50
-depth = 2 # works for small enough lr
+depth = 1 # works for small enough lr
 P1 = 50
 P2 = 50
 
@@ -105,7 +105,16 @@ def plot_history(errors, n_runs):
     plt.ylabel("Mean Squared Error")
     plt.title("Linear network with {} layers depth \n"
               "(MSE averaged over {} realisations)".format(depth, n_runs))
-    # plt.gca().set_ylim(0, 1)
+    textstr = '\n'.join((
+        r'$N=%.2f$' % (N, ),
+        r'$P_{1}=%.2f$' % (P1, ),
+        r'$P_{2}=%.2f$' % (P2, ),
+        r'$\sigma_{w_1}=%.2f$' % (sgm_w1,),
+        r'$\sigma_{w_2}=%.2f$' % (sgm_w1,),
+        r'$\sigma_{\epsilon}=%.2f$' % (sgm_e,),
+        r'$\eta=%.2f$' % (lr,)
+    ))
+    plt.gcf().text(0.91, 0.12, textstr, fontsize=5)
     plt.show()
 
 

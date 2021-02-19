@@ -15,18 +15,18 @@ teacher2 = Teacher()
 
 ### Hyperparameters
 lr = 1e-3
-epochs1 = 250
-epochs2 = 250
+epochs1 = 500
+epochs2 = 500
 sgm_e = setup.sgm_e
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
 
-N = 20
+N = 50
 
-P1 = 20
-P2 = 20
+P1 = 50
+P2 = 50
 
-def main(alpha, save_epochs=[epochs1, epochs2]):
+def main(alpha, save_epochs):
     P1 = int(alpha * N)
     P2 = int(alpha * N)
 
@@ -105,18 +105,28 @@ def make_data(n_runs, resolution=10, save_epochs=[epochs1, epochs2]):
     errors=pd.DataFrame(egs_vs_alpha)
     return errors
 
-def make_plot(errors, resolution):
+def make_plot(errors):
     errors.plot(figsize=(8, 5))
-    # plt.plot(np.linspace(1, 2.5, resolution), average)
     plt.grid(True)
     plt.xlabel("alpha")
     plt.ylabel("Mean Squared Error")
     plt.title("(MSE averaged over {} realisations)".format(n_runs))
+    plt.legend(title="Times:")
+    textstr = '\n'.join((
+        r'$N=%.2f$' % (N,),
+        r'$P_{1}=%.2f$' % (P1,),
+        r'$P_{2}=%.2f$' % (P2,),
+        r'$\sigma_{w_1}=%.2f$' % (sgm_w1,),
+        r'$\sigma_{w_2}=%.2f$' % (sgm_w1,),
+        r'$\sigma_{\epsilon}=%.2f$' % (sgm_e,),
+        r'$\eta=%.2f$' % (lr,)
+    ))
+    plt.gcf().text(0.91, 0.12, textstr, fontsize=5)
     plt.show()
 
 if __name__ == '__main__':
-    n_runs = 10  #used for averaging over realisations
+    n_runs = 42  #used for averaging over realisations
     resolution = 20 #for how many different alphas in range [1, 2.5] simulation is performed
     errors = make_data(n_runs, resolution,
                        save_epochs=[int(epochs1/2), epochs1, int(epochs1+epochs2/2), epochs2])
-    make_plot(errors, resolution)
+    make_plot(errors)
