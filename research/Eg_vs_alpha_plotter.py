@@ -5,6 +5,8 @@ from utils.utils import Setup, Teacher, Student, PrepareData, \
     load_data, train_valid_loop
 from sklearn.model_selection import train_test_split
 import numpy as np
+from collections import Counter, defaultdict, deque
+import pandas as pd
 #TODO: unify with code from main.py
 
 setup = Setup()
@@ -13,18 +15,18 @@ teacher2 = Teacher()
 
 ### Hyperparameters
 lr = 1e-3
-epochs1 = 400
-epochs2 = 0
+epochs1 = 250
+epochs2 = 250
 sgm_e = setup.sgm_e
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
 
-N = 50
+N = 20
 
-P1 = 50
-P2 = 50
+P1 = 20
+P2 = 20
 
-def main(alpha):
+def main(alpha, save_epochs=[epochs1, epochs2]):
     P1 = int(alpha * N)
     P2 = int(alpha * N)
 
@@ -72,29 +74,40 @@ def main(alpha):
                                criterion=criterion,
                                e_print=50
                               )
-    history=history1['E_valid']+history2['E_valid']
-    return history[-1]
+    history=np.array(history1['E_valid']+history2['E_valid'])
+    Egs = {epoch: history[epoch] for epoch in save_epochs}
+    return Egs
 
-def make_data(resolution=10):
-    eg_vs_alpha = []
+
+def simulate(alpha, n_runs, save_epochs):
+    realisations = []
+    for r in range(n_runs):
+        print("Realisation {}/{}".format(r, n_runs))
+        history = main(alpha, save_epochs=save_epochs)
+        realisations.append(history)
+    c = Counter()  # sums values in lists for each computed error
+    for r in realisations:
+        c.update(r)
+    # averaging over teacher realisations
+    egs_averaged = {k: v / n_runs for k, v in dict(c).items()}
+    return egs_averaged
+
+def make_data(n_runs, resolution=10, save_epochs=[epochs1, epochs2]):
+    egs_vs_alpha=defaultdict(deque)
     for alpha in np.linspace(1, 2.5, resolution):  # TODO: crashes for small N,P
         print('-'*42)
-        print("Calculating for alpha = {}, finished {} % (in this realisation)".format(round(alpha,2), round((alpha-1)/(1.5)*100,2)))
+        print("Calculating for alpha = {}, finished {} %".format(round(alpha,2), round((alpha-1)/(1.5)*100,2)))
         print('-'*42)
-        Eg = main(alpha)
-        eg_vs_alpha.append(Eg)
-    return eg_vs_alpha
 
-def simulate(n_runs, resolution):
-    total = np.empty(resolution)
-    for r in range(n_runs):
-        print("Run {}/{}".format(r, n_runs))
-        total += np.array(make_data(resolution))
-    average = total/n_runs
-    return average
+        averaged_egs=simulate(alpha, n_runs, save_epochs=save_epochs)
+        for k, v in averaged_egs.items():
+            egs_vs_alpha[k].append(v)
+    errors=pd.DataFrame(egs_vs_alpha)
+    return errors
 
-def make_plot(average, resolution):
-    plt.plot(np.linspace(1, 2.5, resolution), average)
+def make_plot(errors, resolution):
+    errors.plot(figsize=(8, 5))
+    # plt.plot(np.linspace(1, 2.5, resolution), average)
     plt.grid(True)
     plt.xlabel("alpha")
     plt.ylabel("Mean Squared Error")
@@ -102,7 +115,8 @@ def make_plot(average, resolution):
     plt.show()
 
 if __name__ == '__main__':
-    n_runs = 1  #used for averaging over realisations
-    resolution = 42 #for how many different alphas in range [1, 2.5] simulation is performed
-    average = simulate(n_runs, resolution)
-    make_plot(average, resolution)
+    n_runs = 10  #used for averaging over realisations
+    resolution = 20 #for how many different alphas in range [1, 2.5] simulation is performed
+    errors = make_data(n_runs, resolution,
+                       save_epochs=[int(epochs1/2), epochs1, int(epochs1+epochs2/2), epochs2])
+    make_plot(errors, resolution)
