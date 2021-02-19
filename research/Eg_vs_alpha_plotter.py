@@ -113,8 +113,8 @@ def make_data(n_runs, resolution=10, save_epochs=[epochs1, epochs2]):
 def make_plot(errors):
     errors.plot(figsize=(8, 5))
     plt.grid(True)
-    plt.xlabel("$\alpha$")
-    plt.ylabel("$E_g (\alpha)$")
+    plt.xlabel(r"$\alpha$")
+    plt.ylabel(r"$E_g(\alpha)$")
     plt.title("(MSE averaged over {} realisations)".format(n_runs))
     plt.legend(title="Times:")
     textstr = '\n'.join((
