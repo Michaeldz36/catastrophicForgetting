@@ -162,9 +162,3 @@ def training_loop(X_train, Y_train, n_epochs, optimizer, model, loss_fn):
     return history
 
 
-def check_correlation(X1,X2):
-    X1=X1.flatten()
-    X2=X2.flatten()
-    pearson = np.corrcoef(X1,X2)
-    print("Correlation between data is:\n", pearson)
-    return pearson
