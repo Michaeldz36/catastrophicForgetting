@@ -30,7 +30,7 @@ if __name__ == '__main__':
     pdf_empirical = fitKDE(np.diag(eVals), bWidth=0.01)
     pdf_MP.plot(label="Marchenko-Pastur", color="deepskyblue")
     plt.hist(pd.Series(np.diag(eVals)), density="norm", bins=1000, label="Empirical Value", color="red")
-    plt.xlabel(r"$\lambda")
+    plt.xlabel(r"$\lambda$")
     plt.ylabel(r"$\rho(\lambda)$")
     plt.legend(loc="upper right")
     plt.title("Marchenko-Pastur Filter")
