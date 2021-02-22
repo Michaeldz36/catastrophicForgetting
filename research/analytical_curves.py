@@ -25,23 +25,32 @@ sgm_e = setup.sgm_e
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
 sgm_w0 = 0
-w1, w2 = 1, 1
+weights_correlation = 0
 
-E_g11 = lambda t: 1 / N * np.sum( (sgm_w1**2 + sgm_w0**2)*np.exp(-2 * eVals1* t/tau)
-                                  +1/eVals1 * sgm_e**2 * (1 - np.exp(-eVals1 * t/tau))**2 ) + sgm_e**2
-
-
-E_g22 = lambda t: 1 / N * \
-        np.sum((sgm_w2**2 + sgm_w0**2 * np.exp(-2*eVals1*epochs1/tau)+
-         (sgm_w1**2 + 1 / eVals1 * sgm_e**2)*(1-np.exp(-eVals1*epochs1/tau)**2))*np.exp(-2*eVals2*(t-epochs1)/tau) +
-         1/ eVals2 * sgm_e**2 *(1 - np.exp(-eVals2*(t-epochs1)/tau))**2) + sgm_e**2
+def E_g11(t):
+    A0 = (sgm_w1**2 + sgm_w0**2)
+    A = lambda t: A0*np.exp(-2 * eVals1* t/tau)
+    B0= 1/eVals1 * sgm_e**2
+    B = lambda t: B0*(1 - np.exp(-eVals1 * t/tau))**2
+    return 1 / N * np.sum(A(t) + B(t)) + sgm_e**2
 
 
-E_g12 = lambda t: sgm_e**2 +sgm_w1**2 + \
-    sgm_w0**2 * 1 / N * np.sum(np.exp(-2 * eVals1*epochs1/tau)*np.exp(-2 * eVals2*(t-epochs1)/tau)) + \
-    1 / N * np.sum((sgm_w1**2 + 1 /eVals1 * sgm_e**2)*(1-np.exp(-eVals1*epochs1/tau))**2 * np.exp(-2*eVals2*(t-epochs1)/tau)) + \
-    1 / N * np.sum((sgm_w2**2 + 1 /eVals2 * sgm_e**2)*(1-np.exp(-eVals2*(t-epochs1)/tau))**2)
-#     - 2 / N**2 * np.sum((1-np.exp(-eVals2*(t-epochs1)/tau))* 0 #np.sum(w1 * w2))
+def E_g22(t):
+    A0 = (sgm_w2**2 + sgm_w0**2 * np.exp(-2*eVals1*epochs1/tau)+
+         (sgm_w1**2 + 1 / eVals1 * sgm_e**2)*(1-np.exp(-eVals1*epochs1/tau)**2))
+    A = lambda t: A0 * np.exp(-2*eVals2*(t-epochs1)/tau)
+    B = lambda t: 1/ eVals2 * sgm_e**2 *(1 - np.exp(-eVals2*(t-epochs1)/tau))**2
+    return 1 / N * np.sum(A(t) + B(t)) + sgm_e**2
+
+
+def E_g12(t):
+    A = sgm_e ** 2 + sgm_w1 ** 2
+    B = lambda t: sgm_w0 ** 2 * 1 / N * np.sum(np.exp(-2 * eVals1 * epochs1 / tau) * np.exp(-2 * eVals2 * (t - epochs1) / tau))
+    C = lambda t: 1 / N * np.sum((sgm_w1 ** 2 + 1 / eVals1 * sgm_e ** 2) * (1 - np.exp(-eVals1 * epochs1 / tau)) ** 2 * np.exp(
+        -2 * eVals2 * (t - epochs1) / tau))
+    D = lambda t:  1 / N * np.sum((sgm_w2 ** 2 + 1 / eVals2 * sgm_e ** 2) * (1 - np.exp(-eVals2 * (t - epochs1) / tau)) ** 2)
+    E = lambda t: - 2 / N**2 * np.sum((1-np.exp(-eVals2*(t-epochs1)/tau)) * weights_correlation)
+    return A+B(t)+C(t)+D(t)+E(t)
 
 
 def make_plot(epochs1=50, epochs2=50, cross_gen=False):
