@@ -6,14 +6,14 @@ from utils.random import MP_evals
 setup = Setup()
 
 ### Generating random eigenvalues
-N=100
+N=300
 
 
-P1=1000
+P1=300
 eVals1 = MP_evals(P1,N)
 assert len(eVals1)==N
 
-P2=1000
+P2=500
 eVals2 = MP_evals(P2,N)
 assert len(eVals2)==N
 
@@ -59,6 +59,15 @@ def make_plot(epochs1=50, epochs2=50, cross_gen=False):
 
     plt.xlabel("Time")
     plt.ylabel("Generalization Error")
+    textstr = '\n'.join((
+        r'$N=%.2f$' % (N,),
+        r'$P_{1}=%.2f$' % (P1,),
+        r'$P_{2}=%.2f$' % (P2,),
+        r'$\sigma_{w_1}=%.2f$' % (sgm_w1,),
+        r'$\sigma_{w_2}=%.2f$' % (sgm_w1,),
+        r'$\sigma_{\epsilon}=%.2f$' % (sgm_e,),
+    ))
+    plt.gcf().text(0.91, 0.12, textstr, fontsize=5)
     plt.grid(True)
     # plt.ylim([0,2])
     plt.legend()
@@ -66,7 +75,7 @@ def make_plot(epochs1=50, epochs2=50, cross_gen=False):
     print("Done!")
 
 if __name__ == '__main__':
-    make_plot(epochs1=50, epochs2=50, cross_gen=True)
+    make_plot(epochs1=50, epochs2=70, cross_gen=True)
 
 
 

@@ -27,7 +27,7 @@ class Teacher():
         Y = X @ w_bar + eps
         # convert from float64 to float32 for various reasons (speedup, less memory usage)
         X, Y = np.array(X, dtype=np.float32), np.array(Y, dtype=np.float32)
-        return X, Y
+        return X, Y, w_bar
 
 
 class Student(nn.Module):

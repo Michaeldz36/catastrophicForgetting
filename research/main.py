@@ -30,8 +30,8 @@ def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, lr=lr, ep
     teacher1 = Teacher()
     teacher2 = Teacher()
     #TODO: use make_ds function from utils
-    X1, Y1 = teacher1.build_teacher(N, P1, sgm_w1, sgm_e)
-    X2, Y2 = teacher2.build_teacher(N, P2, sgm_w2, sgm_e)
+    X1, Y1, w_bar1 = teacher1.build_teacher(N, P1, sgm_w1, sgm_e)
+    X2, Y2, w_bar2 = teacher2.build_teacher(N, P2, sgm_w2, sgm_e)
     #TODO: add KS-test?
     # check_correlation(X1,X2) # checks Pearson correlation coefficient, works only for P1=P2
     X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size=0.33, random_state=42)

@@ -30,8 +30,8 @@ def main(alpha, save_epochs):
     P1 = int(alpha * N)
     P2 = int(alpha * N)
 
-    X1, Y1 = teacher1.build_teacher(N, P1, sgm_w1, sgm_e)
-    X2, Y2 = teacher1.build_teacher(N, P2, sgm_w2, sgm_e)
+    X1, Y1, w_bar1 = teacher1.build_teacher(N, P1, sgm_w1, sgm_e)
+    X2, Y2, w_bar2 = teacher1.build_teacher(N, P2, sgm_w2, sgm_e)
     X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size = 0.33, random_state = 42)
     X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size = 0.33, random_state = 42)
 
