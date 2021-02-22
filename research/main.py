@@ -12,7 +12,7 @@ import numpy as np
 setup = Setup()
 
 ### Hyperparameters
-# batch_size=setup.P
+# batch_size=setup.P   #TODO: for SGD like in article should be 1
 lr = 1e-3
 epochs1 = 500
 epochs2 = 0

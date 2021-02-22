@@ -14,6 +14,7 @@ def eigen_dcmp(matrix, diagonal=False):
 
 
 def MP_evals(P, N, diagonal=False):
+    # TODO: assert P>N for Wishart ensemble, maybe implement anti-wishart in the future?
     x = np.random.normal(size=(P, N))
     eVals, _ = eigen_dcmp(np.corrcoef(x, rowvar=0), diagonal)
     return eVals
