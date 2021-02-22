@@ -17,7 +17,7 @@ class Setup():     # TODO: find good starting values
     sgm_w = 1.5
 
 
-class Teacher():
+class Teacher(): #TODO: check if redundant
     def build_teacher(self, N, P, sgm_w, sgm_e):
         # np.random.seed(42) # for repruducability
         w_bar = np.random.normal(0, sgm_w, N)

@@ -4,7 +4,7 @@ from utils.utils import Setup
 from utils.random import MP_evals
 
 
-class AnalyticalSolution():
+class AnalyticalSolution: #TODO: make it work with main's syllabus
     def __init__(self, N, P1, P2, tau, epochs1, epochs2, sgm_e, sgm_w1, sgm_w2, sgm_w0, weights_correlation):
         ### Hyperparameters
         self.tau = tau

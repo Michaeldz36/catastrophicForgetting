@@ -8,22 +8,25 @@ from utils.random import check_correlation
 from sklearn.model_selection import train_test_split
 from collections import Counter
 import numpy as np
+from analytical_curves import AnalyticalSolution
 
 setup = Setup()
 
 ### Hyperparameters
-# batch_size=setup.P   #TODO: for SGD like in article should be 1
-lr = 1e-3
-epochs1 = 500
-epochs2 = 0
+batch_size=1
+epochs1 = 250
+epochs2 = 250
 sgm_e = setup.sgm_e
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
 
-N = 300
+N = 50
+P1 = 70
+P2 = 50
+
+lr = 1e-3
 depth = 1 # works for small enough lr
-P1 = 300
-P2 = 500
+
 
 
 def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, lr=lr, epochs1=epochs1, epochs2=epochs2, d=depth):
@@ -117,7 +120,7 @@ def plot_history(errors, n_runs):
         r'$\eta=%.2f$' % (lr,)
     ))
     plt.gcf().text(0.91, 0.12, textstr, fontsize=5)
-    plt.show()
+    # plt.show()
 
 
 if __name__ == '__main__':
@@ -125,3 +128,14 @@ if __name__ == '__main__':
     n_runs = 1
     errors = simulate(syllabus, n_runs)
     plot_history(errors, n_runs)
+
+    if False:
+        analytical = AnalyticalSolution(N, P1, P2, 1, epochs1, epochs2, sgm_e, sgm_w1, sgm_w2, 0., 0.)
+        timesteps1 = np.linspace(0, epochs1, epochs1)
+        timesteps2 = np.linspace(epochs1, epochs1 + epochs2, epochs2)
+        e_g11, e_g22, e_g12 = analytical.curves(timesteps1, timesteps2)
+        plt.plot(timesteps1, e_g11, label = 'analytical E_g11', linestyle='-')
+        plt.plot(timesteps2, e_g22, label = 'analytical E_g22', linestyle=':')
+        plt.plot(timesteps2, e_g12, label = 'analytical E_g12', linestyle='-.')
+
+    plt.show()
