@@ -29,7 +29,8 @@ depth = 1 # works for small enough lr
 
 
 
-def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e, lr=lr, epochs1=epochs1, epochs2=epochs2, d=depth):
+def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e,
+         lr=lr, epochs1=epochs1, epochs2=epochs2, d=depth):
     teacher1 = Teacher()
     teacher2 = Teacher()
     #TODO: use make_ds function from utils
@@ -109,7 +110,7 @@ def simulate(syllabus, n_runs):
     return errors, variances
 
 
-def plot_history(errors, n_runs, variances=None):
+def plot_history(errors, n_runs, variances=None, analytical=False):
     errors.plot(figsize=(8, 5), yerr=variances)
     # plt.axhline(y=sgm_e, color='r', linestyle='-')
     plt.grid(True)
@@ -127,22 +128,20 @@ def plot_history(errors, n_runs, variances=None):
         r'$\eta=%.2f$' % (lr,)
     ))
     plt.gcf().text(0.91, 0.12, textstr, fontsize=5)
-    # plt.show()
-
-
-if __name__ == '__main__':
-    syllabus = [N, P1, P2, sgm_w1, sgm_w2, sgm_e, lr, epochs1, epochs2, depth]
-    n_runs = 100
-    errors, variances = simulate(syllabus, n_runs)
-    plot_history(errors=errors, n_runs=n_runs, variances=variances)
-
-    if False:
+    if analytical:
         analytical = AnalyticalSolution(N, P1, P2, 1, epochs1, epochs2, sgm_e, sgm_w1, sgm_w2, 0., 0.)
         timesteps1 = np.linspace(0, epochs1, epochs1)
         timesteps2 = np.linspace(epochs1, epochs1 + epochs2, epochs2)
         e_g11, e_g22, e_g12 = analytical.curves(timesteps1, timesteps2)
-        plt.plot(timesteps1, e_g11, label = 'analytical E_g11', linestyle='--')
-        plt.plot(timesteps2, e_g22, label = 'analytical E_g22', linestyle=':')
-        plt.plot(timesteps2, e_g12, label = 'analytical E_g12', linestyle='-.')
-
+        plt.plot(timesteps1, e_g11, label='analytical E_g11', linestyle='--')
+        plt.plot(timesteps2, e_g22, label='analytical E_g22', linestyle=':')
+        plt.plot(timesteps2, e_g12, label='analytical E_g12', linestyle='-.')
     plt.show()
+
+
+if __name__ == '__main__':
+    syllabus = [N, P1, P2, sgm_w1, sgm_w2, sgm_e, lr, epochs1, epochs2, depth]
+    n_runs = 5
+    errors, variances = simulate(syllabus, n_runs)
+    plot_history(errors=errors, n_runs=n_runs, variances=variances, analytical=False)
+
