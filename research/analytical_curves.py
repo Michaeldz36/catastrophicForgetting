@@ -64,7 +64,7 @@ class AnalyticalSolution: #TODO: make it work with main's syllabus
 
 
 def make_plot(e_g11, e_g22, e_g12, timesteps1, timesteps2):
-    plt.plot(timesteps1, e_g11, label="Generalization Error (11")
+    plt.plot(timesteps1, e_g11, label="Generalization Error (11)")
     plt.plot(timesteps2, e_g22, label="Generalization Error (22)")
     plt.plot(timesteps2, e_g12, label="Generalization Error (12)")
     plt.xlabel("Time")
