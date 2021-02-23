@@ -145,7 +145,7 @@ def plot_history(errors, n_runs, variances=None, analytical=False):
 
 if __name__ == '__main__': #TODO: update jupyter notebook
     syllabus = [N, P1, P2, epochs1, epochs2, sgm_w1, sgm_w2, sgm_e, lr, depth]
-    n_runs = 20
+    n_runs = 10
     errors, variances = simulate(syllabus, n_runs)
     plot_history(errors=errors, n_runs=n_runs,
                  variances=None, analytical=True)
