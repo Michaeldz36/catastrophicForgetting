@@ -15,8 +15,8 @@ teacher2 = Teacher()
 
 ### Hyperparameters
 lr = 1e-2
-epochs1 = 500
-epochs2 = 0
+epochs1 = 100
+epochs2 = 100
 sgm_e = setup.sgm_e
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
@@ -87,31 +87,38 @@ def simulate(alpha, n_runs, save_epochs):
         print('-' * 30)
         history = main(alpha, save_epochs=save_epochs)
         realisations.append(history)
+
     c = Counter()  # sums values in lists for each computed error
+    v = Counter()
     for r in realisations:
         c.update(r)
+        v.update({k: v ** 2 for k, v in r.items()})
     # averaging over teacher realisations
-    egs_averaged = {k: v / n_runs for k, v in dict(c).items()}
-    return egs_averaged
+    errors = {k: v / n_runs for k, v in dict(c).items()}
+    variances = {k: v/n_runs - errors[k] for k, v in dict(v).items()}
+    return errors, variances
 
 def make_data(n_runs, resolution=10, save_epochs=[epochs1, epochs2]):
     egs_vs_alpha=defaultdict(deque)
+    variances_vs_alpha=defaultdict(deque)
     for alpha in np.linspace(1, 2.5, resolution):  # TODO: crashes for small N,P
         print('-'*50)
         print("Calculating for alpha = {}".format(round(alpha,2)))
         print('-'*50)
 
-        averaged_egs=simulate(alpha, n_runs, save_epochs=save_epochs)
-        for k, v in averaged_egs.items():
+        errors, variances = simulate(alpha, n_runs, save_epochs=save_epochs)
+        for k, v in errors.items():
             egs_vs_alpha[k].append(v)
+            variances_vs_alpha[k].append(variances[k])
         print('-' * 50)
         print("Finished {} %".format(round((alpha-1)/(1.5)*100,2)))
         print('-' * 50)
     errors=pd.DataFrame(egs_vs_alpha)
-    return errors
+    variances=pd.DataFrame(variances_vs_alpha)
+    return errors, variances
 
-def make_plot(errors):
-    errors.plot(figsize=(8, 5))
+def make_plot(errors, variances=None):
+    errors.plot(figsize=(8, 5), yerr=variances)
     plt.grid(True)
     plt.xlabel(r"$\alpha$")
     plt.ylabel(r"$E_g(\alpha)$")
@@ -130,8 +137,8 @@ def make_plot(errors):
     plt.show()
 
 if __name__ == '__main__':
-    n_runs = 1  #used for averaging over realisations
+    n_runs = 10  #used for averaging over realisations
     resolution = 15 #for how many different alphas in range [1, 2.5] simulation is performed
-    errors = make_data(n_runs, resolution,
-                       save_epochs=[5,10,20,50,100,200,499])
-    make_plot(errors)
+    errors, variances = make_data(n_runs, resolution,
+                       save_epochs=[1,2,3,4,5,6,7,8,9])
+    make_plot(errors=errors, variances=variances)

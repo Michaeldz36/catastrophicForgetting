@@ -132,7 +132,7 @@ def plot_history(errors, n_runs, variances=None):
 
 if __name__ == '__main__':
     syllabus = [N, P1, P2, sgm_w1, sgm_w2, sgm_e, lr, epochs1, epochs2, depth]
-    n_runs = 10
+    n_runs = 100
     errors, variances = simulate(syllabus, n_runs)
     plot_history(errors=errors, n_runs=n_runs, variances=variances)
 
