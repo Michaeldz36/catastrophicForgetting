@@ -13,18 +13,18 @@ from analytical_curves import AnalyticalSolution
 setup = Setup()
 
 ### Hyperparameters
-batch_size=1
-epochs1 = 250
-epochs2 = 250
+batch_size=300
+epochs1 = 500
+epochs2 = 500
 sgm_e = setup.sgm_e
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
 
-N = 50
-P1 = 70
-P2 = 50
+N = 300
+P1 = 300
+P2 = 300
 
-lr = 1e-3
+lr = 1e-2 # TODO: simulation strongly dependent on lr...
 depth = 1 # works for small enough lr
 
 
@@ -94,16 +94,23 @@ def simulate(syllabus, n_runs):
         history = main(*syllabus)
         realisations.append(history)
     # TODO: check (unit test), clean this clutter
+    square_realisations=[]
     c = Counter() # sums values in lists for each computed error
     for r in realisations:
         c.update(r)
+        square_realisations.append({k: v ** 2 for k, v in r.items()})
     # averaging over teacher realisations
     errors = pd.DataFrame(c) / n_runs
-    return errors
+
+    v = Counter()
+    for sr in square_realisations:
+        v.update(sr)
+    variances=pd.DataFrame(v)/ n_runs - errors**2
+    return errors, variances
 
 
-def plot_history(errors, n_runs):
-    errors.plot(figsize=(8, 5))
+def plot_history(errors, n_runs, variances=None):
+    errors.plot(figsize=(8, 5), yerr=variances)
     # plt.axhline(y=sgm_e, color='r', linestyle='-')
     plt.grid(True)
     plt.xlabel("Epoch")
@@ -125,16 +132,16 @@ def plot_history(errors, n_runs):
 
 if __name__ == '__main__':
     syllabus = [N, P1, P2, sgm_w1, sgm_w2, sgm_e, lr, epochs1, epochs2, depth]
-    n_runs = 1
-    errors = simulate(syllabus, n_runs)
-    plot_history(errors, n_runs)
+    n_runs = 10
+    errors, variances = simulate(syllabus, n_runs)
+    plot_history(errors=errors, n_runs=n_runs, variances=variances)
 
     if False:
         analytical = AnalyticalSolution(N, P1, P2, 1, epochs1, epochs2, sgm_e, sgm_w1, sgm_w2, 0., 0.)
         timesteps1 = np.linspace(0, epochs1, epochs1)
         timesteps2 = np.linspace(epochs1, epochs1 + epochs2, epochs2)
         e_g11, e_g22, e_g12 = analytical.curves(timesteps1, timesteps2)
-        plt.plot(timesteps1, e_g11, label = 'analytical E_g11', linestyle='-')
+        plt.plot(timesteps1, e_g11, label = 'analytical E_g11', linestyle='--')
         plt.plot(timesteps2, e_g22, label = 'analytical E_g22', linestyle=':')
         plt.plot(timesteps2, e_g12, label = 'analytical E_g12', linestyle='-.')
 
