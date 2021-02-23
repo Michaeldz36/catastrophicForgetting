@@ -140,5 +140,5 @@ if __name__ == '__main__':
     n_runs = 10  #used for averaging over realisations
     resolution = 15 #for how many different alphas in range [1, 2.5] simulation is performed
     errors, variances = make_data(n_runs, resolution,
-                       save_epochs=[1,2,3,4,5,6,7,8,9])
+                       save_epochs=[10, 20, 40, 60, 80, 150, 199])
     make_plot(errors=errors, variances=variances)
