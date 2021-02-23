@@ -13,24 +13,27 @@ from analytical_curves import AnalyticalSolution
 setup = Setup()
 
 ### Hyperparameters
-batch_size=300
-epochs1 = 500
-epochs2 = 500
-sgm_e = setup.sgm_e
+N = 30
+P1 = 30
+P2 = 30
+
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
+sgm_e = setup.sgm_e
 
-N = 300
-P1 = 300
-P2 = 300
+sgm_w0 = 0. #TODO: 0 in article..
 
+epochs1 = 1000
+epochs2 = 0
+
+batch_size=P1
 lr = 1e-2 # TODO: simulation strongly dependent on lr...
-depth = 1 # works for small enough lr
+tau=1/lr  ### in article tau = Delta_t / lr
+depth = 1 ### works for small enough lr
 
 
-
-def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e,
-         lr=lr, epochs1=epochs1, epochs2=epochs2, d=depth):
+def main(N=N, P1=P1, P2=P2, epochs1=epochs1, epochs2=epochs2, sgm_e=sgm_e, sgm_w2=sgm_w2, sgm_w1=sgm_w1, lr=lr,
+         d=depth):
     teacher1 = Teacher()
     teacher2 = Teacher()
     #TODO: use make_ds function from utils
@@ -41,7 +44,7 @@ def main(N=N, P1=P1, P2=P2, sgm_w1=sgm_w1, sgm_w2=sgm_w2, sgm_e=sgm_e,
     X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size=0.33, random_state=42)
     X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size=0.33, random_state=42)
 
-    model = Student(n_features=N, sgm_e=sgm_e, depth = d)
+    model = Student(n_features=N, sgm_w0=sgm_w0, sparsity=1, depth = d)
     optimizer = optim.SGD(model.parameters(), lr=lr)
     criterion = nn.MSELoss()
 
@@ -129,7 +132,7 @@ def plot_history(errors, n_runs, variances=None, analytical=False):
     ))
     plt.gcf().text(0.91, 0.12, textstr, fontsize=5)
     if analytical:
-        analytical = AnalyticalSolution(N, P1, P2, 1, epochs1, epochs2, sgm_e, sgm_w1, sgm_w2, 0., 0.)
+        analytical = AnalyticalSolution(N, P1, P2, tau, epochs1, epochs2, sgm_e, sgm_w1, sgm_w2, 0., 0.)
         timesteps1 = np.linspace(0, epochs1, epochs1)
         timesteps2 = np.linspace(epochs1, epochs1 + epochs2, epochs2)
         e_g11, e_g22, e_g12 = analytical.curves(timesteps1, timesteps2)
@@ -139,9 +142,10 @@ def plot_history(errors, n_runs, variances=None, analytical=False):
     plt.show()
 
 
-if __name__ == '__main__':
-    syllabus = [N, P1, P2, sgm_w1, sgm_w2, sgm_e, lr, epochs1, epochs2, depth]
-    n_runs = 5
+if __name__ == '__main__': #TODO: update jupyter notebook
+    syllabus = [N, P1, P2, epochs1, epochs2, sgm_w1, sgm_w2, sgm_e, lr, depth]
+    n_runs = 1
     errors, variances = simulate(syllabus, n_runs)
-    plot_history(errors=errors, n_runs=n_runs, variances=variances, analytical=False)
+    plot_history(errors=errors, n_runs=n_runs,
+                 variances=None, analytical=False)
 

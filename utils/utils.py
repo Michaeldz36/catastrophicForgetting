@@ -12,9 +12,11 @@ class Setup():     # TODO: find good starting values
 
     # SNR = (sgm_w / sgm_e) ** 2
     # INR = (sgm_w0 / sgm_w) ** 2
-    sgm_e = 1.1
+    sgm_w = 1.
     sgm_w0 = 0.
-    sgm_w = 1.5
+    sgm_e = 0.2
+
+
 
 
 class Teacher(): #TODO: check if redundant
@@ -31,19 +33,19 @@ class Teacher(): #TODO: check if redundant
 
 
 class Student(nn.Module):
-    def __init__(self, n_features, sgm_e=0.01, sparsity=0., depth = 1):
+    def __init__(self, n_features, sgm_w0=0.01, sparsity=0., depth = 1):
         super(Student, self).__init__()
-        self.linears = nn.ModuleList([nn.Linear(n_features, n_features) for _ in range(depth-1)])
-        self.output = nn.Linear(in_features=n_features, out_features=1)
+        self.linears = nn.ModuleList([nn.Linear(in_features=n_features, out_features=n_features, bias=False) for _ in range(depth-1)])
+        self.fc = nn.Linear(in_features=n_features, out_features=1, bias=False)
         for i in range(depth-1):
-            nn.init.sparse_(self.linears[i].weight, sparsity=sparsity, std=sgm_e)
-        nn.init.sparse_(self.output.weight, sparsity=sparsity, std=sgm_e)
+            nn.init.sparse_(self.linears[i].weight, sparsity=sparsity, std=sgm_w0)
+        nn.init.sparse_(self.fc.weight, sparsity=sparsity, std=sgm_w0)
 
     def forward(self, x):
         for i, l in enumerate(self.linears):
             x = self.linears[i // 2](x) + l(x)
-        x = self.output(x)
-        return x
+        output = self.fc(x)
+        return output
 
 
 def make_ds(X,Y, scale_X=True):
@@ -63,7 +65,7 @@ class PrepareData(Dataset):
         if not torch.is_tensor(X):
             if scale_X:
                 X = StandardScaler().fit_transform(X)
-                self.X = torch.from_numpy(X)
+            self.X = torch.from_numpy(X)
         if not torch.is_tensor(y):
             self.y = torch.from_numpy(y)
 
