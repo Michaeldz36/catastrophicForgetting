@@ -92,51 +92,52 @@ def load_data(train_ds, valid_ds=None, generalize_ds=None, batch_size=1):
 def train_valid_loop(data_loaders, data_lengths, n_epochs,
                      optimizer, model, criterion, e_print=1):
     history={"E_train":[], "E_valid":[], "E_cross_g":[]}
-    if n_epochs==0:
+    if n_epochs == 0:
         return history
     for epoch in range(1, n_epochs + 1):
         if epoch % e_print == 0:
             print('Epoch {}/{}'.format(epoch, n_epochs))
             print('-' * 10)
-        # Each epoch has a training and validation phase
+        ### Each epoch has a training and validation phase
         phases = ['train', 'val', 'cross_gen']
         for phase in phases:
             if phase == 'train':
-                model.train(True)  # Set model to training mode
+                model.train(True)  ### Set model to training mode
             else:
-                model.train(False)  # Set model to evaluate mode
+                model.train(False)  ### Set model to evaluate mode
 
             running_loss = 0.0
 
-            # Iterate over data.
+            ### Iterate over data.
             for (Xb, yb) in data_loaders[phase]:
-                # get the input Xs and their corresponding Ys
+                ### get the input Xs and their corresponding Ys
                 X = Xb
                 Y_true = torch.reshape(yb, (yb.shape[0], 1))
 
-                # forward pass to get outputs
+                ### forward pass to get outputs
                 y_pred = model(X)
                 # print("Y_true ", Y_true)
                 # print("y_pred ", y_pred)
                 # print(Y_true.shape, y_pred.shape)
 
-                # calculate the loss between predicted and target
+                ### calculate the loss between predicted and target
                 loss = criterion(y_pred, Y_true)
                 if loss.item()==float("inf"):
                     print("Possibly too large lr!")
                     raise ValueError
-                # zero the parameter (weight) gradients
+                ### zero the parameter (weight) gradients
                 optimizer.zero_grad()
 
-                # backward + optimize only if in training phase
+                ### backward + optimize only if in training phase
                 if phase == 'train':
                     loss.backward()
                     # update the weights
                     optimizer.step()
 
-                # print loss statistics
+                ### update running loss
                 running_loss += loss.item()
-            epoch_loss = running_loss / data_lengths[phase]
+            # TODO!!!! proper normalisation for batch learning!!!!!
+            epoch_loss = running_loss # / data_lengths[phase]
             if phase == 'train':
                 history["E_train"].append(epoch_loss)
             elif phase == 'val':

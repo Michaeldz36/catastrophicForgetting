@@ -13,18 +13,19 @@ from analytical_curves import AnalyticalSolution
 setup = Setup()
 
 ### Hyperparameters
-N = 30
-P1 = 30
-P2 = 30
+N = 300
+P1 = 300
+P2 = 300
 
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
 sgm_e = setup.sgm_e
 
-sgm_w0 = 0. #TODO: 0 in article..
+sgm_w0 = 1e-2 ### 0 in article..
+sparsity=1 ### this hack enables us to initialize with 0 weights
 
-epochs1 = 1000
-epochs2 = 0
+epochs1 = 250
+epochs2 = 250
 
 batch_size=P1
 lr = 1e-2 # TODO: simulation strongly dependent on lr...
@@ -44,7 +45,7 @@ def main(N=N, P1=P1, P2=P2, epochs1=epochs1, epochs2=epochs2, sgm_e=sgm_e, sgm_w
     X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size=0.33, random_state=42)
     X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size=0.33, random_state=42)
 
-    model = Student(n_features=N, sgm_w0=sgm_w0, sparsity=1, depth = d)
+    model = Student(n_features=N, sgm_w0=sgm_w0, sparsity=sparsity, depth = d)
     optimizer = optim.SGD(model.parameters(), lr=lr)
     criterion = nn.MSELoss()
 
@@ -144,8 +145,8 @@ def plot_history(errors, n_runs, variances=None, analytical=False):
 
 if __name__ == '__main__': #TODO: update jupyter notebook
     syllabus = [N, P1, P2, epochs1, epochs2, sgm_w1, sgm_w2, sgm_e, lr, depth]
-    n_runs = 1
+    n_runs = 20
     errors, variances = simulate(syllabus, n_runs)
     plot_history(errors=errors, n_runs=n_runs,
-                 variances=None, analytical=False)
+                 variances=None, analytical=True)
 
