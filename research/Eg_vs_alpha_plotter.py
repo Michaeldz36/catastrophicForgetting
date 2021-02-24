@@ -20,6 +20,10 @@ epochs2 = 100
 sgm_e = setup.sgm_e
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
+sgm_w0=1e-3
+sparsity=1
+
+d=1
 
 N = 30
 
@@ -35,7 +39,7 @@ def main(alpha, save_epochs):
     X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size = 0.33, random_state = 42)
     X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size = 0.33, random_state = 42)
 
-    model = Student(n_features=N, sgm_e=sgm_e)
+    model = Student(n_features=N, sgm_w0=sgm_w0, sparsity=sparsity, depth = d)
     optimizer = optim.SGD(model.parameters(), lr=lr)
     criterion = nn.MSELoss()
 

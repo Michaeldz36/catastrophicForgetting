@@ -116,7 +116,7 @@ def simulate(syllabus, n_runs):
 
 def plot_history(errors, n_runs, variances=None, analytical=False):
     errors.plot(figsize=(8, 5), yerr=variances)
-    # plt.axhline(y=sgm_e, color='r', linestyle='-')
+    plt.axhline(y=sgm_e, color='r', linestyle='--',  linewidth=0.5, alpha=0.5)
     plt.grid(True)
     plt.xlabel("Epoch")
     plt.ylabel("Mean Squared Error")
@@ -140,12 +140,13 @@ def plot_history(errors, n_runs, variances=None, analytical=False):
         plt.plot(timesteps1, e_g11, label='analytical E_g11', linestyle='--')
         plt.plot(timesteps2, e_g22, label='analytical E_g22', linestyle=':')
         plt.plot(timesteps2, e_g12, label='analytical E_g12', linestyle='-.')
+        plt.legend()
     plt.show()
 
 
 if __name__ == '__main__': #TODO: update jupyter notebook
     syllabus = [N, P1, P2, epochs1, epochs2, sgm_w1, sgm_w2, sgm_e, lr, depth]
-    n_runs = 10
+    n_runs = 1
     errors, variances = simulate(syllabus, n_runs)
     plot_history(errors=errors, n_runs=n_runs,
                  variances=None, analytical=True)

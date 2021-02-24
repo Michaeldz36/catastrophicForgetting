@@ -1,5 +1,4 @@
 from utils.utils import Student
-import torch
 import numpy as np
 
 
