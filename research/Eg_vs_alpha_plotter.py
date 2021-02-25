@@ -14,21 +14,21 @@ teacher1 = Teacher()
 teacher2 = Teacher()
 
 ### Hyperparameters
-lr = 1e-2
-epochs1 = 100
+lr = 1e-3
+epochs1 = 1000
 epochs2 = 0
 sgm_e = setup.sgm_e
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
 sgm_w0=1e-3
-sparsity=1
+sparsity=1 ### to ensure w(0) = 0
 
 d=1
 
-N = 250
+N = 300
 
-P1 = 250
-P2 = 30
+P1 = 300
+P2 = 300
 
 def main(alpha, save_epochs):
     P1 = int(alpha * N)
@@ -142,8 +142,8 @@ def make_plot(errors, variances=None):
     plt.show()
 
 if __name__ == '__main__':
-    n_runs = 10 #used for averaging over realisations
+    n_runs = 1 #used for averaging over realisations
     resolution = 25 #for how many different alphas in range [0+\eps, 2.5] simulation is performed
     errors, variances = make_data(n_runs, resolution,
-                       save_epochs=[epochs1//2, epochs1, epochs1+epochs2//2, epochs1+epochs2])
+                       save_epochs=[epochs1//200, epochs1//50, epochs1//20, epochs1//10, epochs1, epochs1+epochs2//2, epochs1+epochs2])
     make_plot(errors=errors, variances=None)

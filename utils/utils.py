@@ -116,9 +116,7 @@ def train_valid_loop(data_loaders, data_lengths, n_epochs,
 
                 ### forward pass to get outputs
                 y_pred = model(X)
-                # print("Y_true ", Y_true)
-                # print("y_pred ", y_pred)
-                # print(Y_true.shape, y_pred.shape)
+
 
                 ### calculate the loss between predicted and target
                 loss = criterion(y_pred, Y_true)
@@ -137,7 +135,7 @@ def train_valid_loop(data_loaders, data_lengths, n_epochs,
                 ### update running loss
                 running_loss += loss.item()
             # TODO!!!! proper normalisation for batch learning!!!!!
-            epoch_loss = running_loss # / data_lengths[phase]
+            epoch_loss = running_loss #/ data_lengths[phase]
             if phase == 'train':
                 history["E_train"].append(epoch_loss)
             elif phase == 'val':

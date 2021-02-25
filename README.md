@@ -8,7 +8,7 @@ Main simulation is currently in [Main](research/main.py).
 
 Example figure presents three error plots: training error, validation error and cross generalization (how well network recognizes other data, not presented to its during training),
 all computed simultaneously during training phase. Training phase consists of two subphases, when the main network (called Student) is fed with data first from the Teacher 1 and then from the Teacher 2 networks.
-![alt text](https://github.com/Michaeldz36/catastrophicForgetting/blob/master/docs/figs/errors2.png?raw=true)
+![alt text](https://github.com/Michaeldz36/catastrophicForgetting/blob/master/docs/figs/numerical+analytical_plots.png?raw=true)
 
 
 The jupyter notebook version of the simulation (with possibility of small setup-tweaking) can be runned in cloud using following link:
