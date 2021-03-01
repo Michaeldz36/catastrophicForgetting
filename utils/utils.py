@@ -48,26 +48,14 @@ class Student(nn.Module):
         return output
 
 
-def make_ds(X,Y, scale_X=True):
-    X_tensor = torch.from_numpy(X.reshape(X.shape[0], X.shape[1]))
-    Y_tensor = torch.from_numpy(Y.reshape(Y.shape[0], 1))
-
-    if scale_X:   # feature scaling
-        means = X_tensor.mean(1, keepdim=True)
-        deviations = X_tensor.std(1, keepdim=True)
-        X_tensor -= means
-        X_tensor /= deviations
-    return (X_tensor, Y_tensor)
-
-
 class PrepareData(Dataset):
     def __init__(self, X, y, scale_X=True):
         if not torch.is_tensor(X):
             if scale_X:
                 X = StandardScaler().fit_transform(X)
-            self.X = torch.from_numpy(X)
+            self.X = torch.tensor(X, dtype=torch.float32)
         if not torch.is_tensor(y):
-            self.y = torch.from_numpy(y)
+            self.y = torch.tensor(y, dtype=torch.float32)
 
     def __len__(self):
         return len(self.X)
@@ -76,7 +64,7 @@ class PrepareData(Dataset):
         return self.X[idx], self.y[idx]
 
 
-def load_data(train_ds, valid_ds=None, generalize_ds=None, batch_size=1): #TODO: batch size, names of phases...
+def load_data(train_ds, valid_ds=[], generalize_ds=[], batch_size=1): #TODO: batch size, names of phases...
     train_loader = DataLoader(train_ds, batch_size=batch_size,
                            sampler=None)
     validation_loader = DataLoader(valid_ds, batch_size=batch_size,
@@ -166,5 +154,17 @@ def training_loop(X_train, Y_train, n_epochs, optimizer, model, loss_fn):
         if epoch == 1 or epoch % 10 == 0:
             print(f"Epoch {epoch}, Training loss {loss_train.item():.4f}")
     return history
+
+
+def make_ds(X,Y, scale_X=True):  #todo: currently not used
+    X_tensor = torch.from_numpy(X.reshape(X.shape[0], X.shape[1]))
+    Y_tensor = torch.from_numpy(Y.reshape(Y.shape[0], 1))
+
+    if scale_X:   # feature scaling
+        means = X_tensor.mean(1, keepdim=True)
+        deviations = X_tensor.std(1, keepdim=True)
+        X_tensor -= means
+        X_tensor /= deviations
+    return (X_tensor, Y_tensor)
 
 

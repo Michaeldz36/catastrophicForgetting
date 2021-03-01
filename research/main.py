@@ -13,9 +13,9 @@ from analytical_curves import AnalyticalSolution
 setup = Setup()
 
 ### Hyperparameters
-N = 30
-P1 = 30
-P2 = 30
+N = 3
+P1 = 4
+P2 = P1 # for now
 
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
@@ -24,8 +24,8 @@ sgm_e = setup.sgm_e
 sgm_w0 = 1e-13 ### 0 in article..
 sparsity=1 ### this hack enables us to initialize with 0 weights
 
-epochs1 = 250
-epochs2 = 250
+epochs1 = 100
+epochs2 = 0
 
 batch_size=P1/2
 lr = 1e-2 # TODO: simulation strongly dependent on lr...
@@ -40,15 +40,12 @@ def main(N=N, P1=P1, P2=P2, epochs1=epochs1, epochs2=epochs2, sgm_e=sgm_e, sgm_w
     #TODO: use make_ds function from utils
     X1, Y1, w_bar1 = teacher1.build_teacher(N, 2*P1, sgm_w1, sgm_e) ### generate 2 times more example for train/test split
     X2, Y2, w_bar2 = teacher2.build_teacher(N, 2*P2, sgm_w2, sgm_e)
+    print(X1)
+    print(Y1)
     #TODO: add KS-test? check how X1, X2 are correlated, make them look different
     # check_correlation(X1,X2) # checks Pearson correlation coefficient, works only for P1=P2
     X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size=0.5, random_state=42)
     X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size=0.5, random_state=42)
-
-    print("X1_train.shape",X1_train.shape)
-    print("X1_test.shape",X1_test.shape)
-    print("Y1_train.shape",Y1_train.shape)
-    print("Y1_test.shape",Y1_test.shape)
 
 
     model = Student(n_features=N, sgm_w0=sgm_w0, sparsity=sparsity, depth = d)
