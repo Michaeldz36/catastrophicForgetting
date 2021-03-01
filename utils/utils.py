@@ -92,7 +92,9 @@ def load_data(train_ds, valid_ds=None, generalize_ds=None, batch_size=1): #TODO:
 def train_valid_loop(data_loaders, data_lengths, n_epochs,
                      optimizer, model, criterion, e_print=1, \
                      phases=['train', 'valid', 'generalize']):
-    history = {"E_train": []}
+    history={}
+    if 'train' in phases: #TODO: training not enabled when train not in phases for now
+        history["E_train"]=[]
     if 'valid' in phases:
         history["E_valid"]=[]
     if 'generalize' in phases:

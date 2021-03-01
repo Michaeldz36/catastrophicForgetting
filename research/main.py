@@ -24,8 +24,8 @@ sgm_e = setup.sgm_e
 sgm_w0 = 1e-13 ### 0 in article..
 sparsity=1 ### this hack enables us to initialize with 0 weights
 
-epochs1 = 100
-epochs2 = 0
+epochs1 = 250
+epochs2 = 250
 
 batch_size=P1/2
 lr = 1e-2 # TODO: simulation strongly dependent on lr...
@@ -77,7 +77,7 @@ def main(N=N, P1=P1, P2=P2, epochs1=epochs1, epochs2=epochs2, sgm_e=sgm_e, sgm_w
                                 model=model,
                                 criterion=criterion,
                                 e_print=50,
-                                phases=['train','valid']
+                                phases=['train','valid',]
                                 )
     print('Lesson 2/2:')
     print('-' * 20)
@@ -121,11 +121,13 @@ def simulate(syllabus, n_runs):
     return errors, variances
 
 
-def plot_history(errors, n_runs, variances=None, analytical=False):
-    errors.plot(figsize=(8, 5), yerr=variances)
+def plot_history(errors, n_runs, variances=None, analytical=False, yrange=2):
+    errors.plot(figsize=(8, 5), yerr=None)
+    for column in errors.columns:
+        plt.fill_between(variances.index, errors[column]-variances[column], errors[column]+variances[column], alpha=0.2)
     plt.axhline(y=sgm_e, color='r', linestyle='--',  linewidth=0.5, alpha=0.5)
     plt.grid(True)
-    plt.ylim([0,2])
+    plt.ylim([0,yrange])
     plt.xlabel("Epoch")
     plt.ylabel("Mean Squared Error")
     plt.title("Linear network with {} layers depth \n"
@@ -154,8 +156,8 @@ def plot_history(errors, n_runs, variances=None, analytical=False):
 
 if __name__ == '__main__': #TODO: update jupyter notebook
     syllabus = [N, P1, P2, epochs1, epochs2, sgm_w1, sgm_w2, sgm_e, lr, depth]
-    n_runs = 1
+    n_runs = 10
     errors, variances = simulate(syllabus, n_runs)
     plot_history(errors=errors, n_runs=n_runs,
-                 variances=None, analytical=True)
+                 variances=variances, analytical=True, yrange=5)
 
