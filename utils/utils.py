@@ -76,7 +76,7 @@ class PrepareData(Dataset):
         return self.X[idx], self.y[idx]
 
 
-def load_data(train_ds, valid_ds=None, generalize_ds=None, batch_size=1):
+def load_data(train_ds, valid_ds=None, generalize_ds=None, batch_size=1): #TODO: batch size, names of phases...
     train_loader = DataLoader(train_ds, batch_size=batch_size,
                            sampler=None)
     validation_loader = DataLoader(valid_ds, batch_size=batch_size,
@@ -84,13 +84,14 @@ def load_data(train_ds, valid_ds=None, generalize_ds=None, batch_size=1):
     gen_loader = DataLoader(generalize_ds, batch_size=batch_size,
                           sampler=None)
 
-    data_loaders = {"train": train_loader, "val": validation_loader, "cross_gen": gen_loader}
-    data_lengths = {"train": len(train_ds), "val": len(valid_ds), "cross_gen": len(generalize_ds)}
+    data_loaders = {"train": train_loader, "valid": validation_loader, "generalize": gen_loader}
+    data_lengths = {"train": len(train_ds), "valid": len(valid_ds), "generalize": len(generalize_ds)}
     return data_loaders, data_lengths
 
 
 def train_valid_loop(data_loaders, data_lengths, n_epochs,
                      optimizer, model, criterion, e_print=1):
+    phases = ['train', 'valid', 'generalize']
     history={"E_train":[], "E_valid":[], "E_cross_g":[]}
     if n_epochs == 0:
         return history
@@ -98,9 +99,7 @@ def train_valid_loop(data_loaders, data_lengths, n_epochs,
         if epoch % e_print == 0:
             print('Epoch {}/{}'.format(epoch, n_epochs))
             print('-' * 10)
-        ### Each epoch has a training and validation phase
-        phases = ['train', 'val', 'cross_gen']
-        for phase in phases:
+        for phase in phases: ### Each epoch will run through given phases but learn only during training one
             if phase == 'train':
                 model.train(True)  ### Set model to training mode
             else:
@@ -138,9 +137,9 @@ def train_valid_loop(data_loaders, data_lengths, n_epochs,
             epoch_loss = running_loss #/ data_lengths[phase]
             if phase == 'train':
                 history["E_train"].append(epoch_loss)
-            elif phase == 'val':
+            elif phase == 'valid':
                 history["E_valid"].append(epoch_loss)
-            elif phase == 'cross_gen':
+            elif phase == 'generalize':
                 history["E_cross_g"].append(epoch_loss)
             if epoch % e_print == 0:
                 print('{} Loss: {:.4f}'.format(phase, epoch_loss))

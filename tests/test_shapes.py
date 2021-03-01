@@ -14,8 +14,8 @@ P1 = setup.P * 1
 P2 = setup.P * 2
 test_size = 0.3
 
-X1, Y1 = teacher1.build_teacher(N1, P1, 1,1)
-X2, Y2 = teacher1.build_teacher(N2, P2, 1,1)
+X1, Y1, w1_bar = teacher1.build_teacher(N1, P1, 1, 1)
+X2, Y2, w2_bar = teacher1.build_teacher(N2, P2, 1, 1)
 X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1,
                                                         test_size = test_size, random_state = 42)
 X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2,
@@ -33,3 +33,4 @@ if __name__ == '__main__':
     assert Y_test.shape==(int(test_size*(P1+P2)),)
     assert X_train.shape==(int((1-test_size)*(P1+P2)), max(N1, N2))
     assert Y_train.shape==(int((1-test_size)*(P1+P2)),)
+    print("Done!")

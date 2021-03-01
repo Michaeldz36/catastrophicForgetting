@@ -13,9 +13,9 @@ from analytical_curves import AnalyticalSolution
 setup = Setup()
 
 ### Hyperparameters
-N = 300
-P1 = 300
-P2 = 300
+N = 30
+P1 = 30
+P2 = 30
 
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
@@ -24,7 +24,7 @@ sgm_e = setup.sgm_e
 sgm_w0 = 1e-13 ### 0 in article..
 sparsity=1 ### this hack enables us to initialize with 0 weights
 
-epochs1 = 100
+epochs1 = 10
 epochs2 = 0
 
 batch_size=P1/2
