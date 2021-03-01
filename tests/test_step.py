@@ -9,7 +9,7 @@ sgm_w0=1
 sparsity=1
 d=1
 
-lr=1e-4
+lr=1e-2
 
 model = Student(n_features=N, sgm_w0=sgm_w0, sparsity=sparsity, depth=d)
 optimizer = optim.SGD(model.parameters(), lr=lr)

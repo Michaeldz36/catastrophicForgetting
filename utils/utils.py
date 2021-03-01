@@ -106,13 +106,13 @@ def train_valid_loop(data_loaders, data_lengths, n_epochs,
                 ### get the input Xs and their corresponding Ys
                 X = Xb
                 Y_true = torch.reshape(yb, (yb.shape[0], 1))
-
+                print("YTRU",Y_true)
                 ### forward pass to get outputs
                 y_pred = model(X)
-
+                print("PRED",y_pred)
                 ### calculate the loss between predicted and target
                 loss = criterion(y_pred, Y_true)
-                # print("loss",loss)
+                print("loss",loss)
                 if np.array(torch.isinf(loss)).any():
                     print("Possibly too large lr!")
                     raise ValueError
@@ -123,12 +123,17 @@ def train_valid_loop(data_loaders, data_lengths, n_epochs,
                 if phase == 'train':
                     loss.backward()
                     # update the weights
+                    for p in model.parameters():
+                        print("WWWW1", p)
                     optimizer.step()
+                    for p in model.parameters():
+                        print("WWWW2", p)
 
                 ### update running loss
                 running_loss += loss.item()
             # TODO!!!! proper normalisation for batch learning!!!!!
             epoch_loss = running_loss #/ data_lengths[phase]
+            print("epoch_loss",epoch_loss)
             if phase == 'train':
                 history["E_train"].append(epoch_loss)
             elif phase == 'valid':

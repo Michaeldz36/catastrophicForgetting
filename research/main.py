@@ -48,7 +48,7 @@ def main(N=N, P1=P1, P2=P2, epochs1=epochs1, epochs2=epochs2, sgm_e=sgm_e, sgm_w
 
     model = Student(n_features=N, sgm_w0=sgm_w0, sparsity=sparsity, depth = d)
     optimizer = optim.SGD(model.parameters(), lr=lr)
-    criterion = nn.MSELoss()
+    criterion = nn.MSELoss(reduction='mean')
 
     # datasets for training the student network
     train_ds1 = PrepareData(X1_train, y=Y1_train, scale_X=True)
