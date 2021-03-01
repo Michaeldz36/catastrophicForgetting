@@ -24,13 +24,13 @@ sgm_e = setup.sgm_e
 sgm_w0 = 1e-13 ### 0 in article..
 sparsity=1 ### this hack enables us to initialize with 0 weights
 
-epochs1 = 1000
-epochs2 = 0
+epochs1 = 500
+epochs2 = 500
 
-batch_size=P1/2
-lr = 1e-3
-tau = 1/ lr  ### in article tau = Delta_t / lr  (maybe P???)
-depth = 1 ### works for small enough lr
+lr = 1e-2
+batch_size=P1
+tau = 1/ lr * batch_size ### in article tau = Delta_t / lr  (maybe P???)
+depth = 1
 
 
 def main(N=N, P1=P1, P2=P2, epochs1=epochs1, epochs2=epochs2, sgm_e=sgm_e, sgm_w2=sgm_w2, sgm_w1=sgm_w1, lr=lr,
@@ -151,8 +151,8 @@ def plot_history(errors, n_runs, variances=None, analytical=False, yrange=2):
 
 if __name__ == '__main__': #TODO: update jupyter notebook
     syllabus = [N, P1, P2, epochs1, epochs2, sgm_w1, sgm_w2, sgm_e, lr, depth]
-    n_runs = 1
+    n_runs = 3
     errors, variances = simulate(syllabus, n_runs)
     plot_history(errors=errors, n_runs=n_runs,
-                 variances=variances, analytical=True, yrange=5)
+                 variances=variances, analytical=True, yrange=2)
 

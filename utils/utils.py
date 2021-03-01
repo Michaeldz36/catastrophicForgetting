@@ -106,13 +106,13 @@ def train_valid_loop(data_loaders, data_lengths, n_epochs,
                 ### get the input Xs and their corresponding Ys
                 X = Xb
                 Y_true = torch.reshape(yb, (yb.shape[0], 1))
-                print("YTRU",Y_true)
+                # print("YTRU",Y_true) #TODO: for debugging
                 ### forward pass to get outputs
                 y_pred = model(X)
-                print("PRED",y_pred)
+                # print("PRED",y_pred) #TODO: for debugging
                 ### calculate the loss between predicted and target
                 loss = criterion(y_pred, Y_true)
-                print("loss",loss)
+                # print("loss",loss) #TODO: for debugging
                 if np.array(torch.isinf(loss)).any():
                     print("Possibly too large lr!")
                     raise ValueError
@@ -123,17 +123,17 @@ def train_valid_loop(data_loaders, data_lengths, n_epochs,
                 if phase == 'train':
                     loss.backward()
                     # update the weights
-                    for p in model.parameters():
-                        print("WWWW1", p)
+                    # for p in model.parameters(): #TODO: for debugging
+                    #     print("WWWW1", p)#TODO: for debugging
                     optimizer.step()
-                    for p in model.parameters():
-                        print("WWWW2", p)
+                    # for p in model.parameters(): #TODO: for debugging
+                    #     print("WWWW2", p) #TODO: for debugging
 
                 ### update running loss
                 running_loss += loss.item()
             # TODO!!!! proper normalisation for batch learning!!!!!
             epoch_loss = running_loss #/ data_lengths[phase]
-            print("epoch_loss",epoch_loss)
+            # print("epoch_loss",epoch_loss) #TODO: for debugging
             if phase == 'train':
                 history["E_train"].append(epoch_loss)
             elif phase == 'valid':
