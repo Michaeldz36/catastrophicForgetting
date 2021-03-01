@@ -13,8 +13,8 @@ from analytical_curves import AnalyticalSolution
 setup = Setup()
 
 ### Hyperparameters
-N = 3
-P1 = 4
+N = 300
+P1 = 300
 P2 = P1 # for now
 
 sgm_w1 = setup.sgm_w * 1
@@ -24,12 +24,12 @@ sgm_e = setup.sgm_e
 sgm_w0 = 1e-13 ### 0 in article..
 sparsity=1 ### this hack enables us to initialize with 0 weights
 
-epochs1 = 100
+epochs1 = 1000
 epochs2 = 0
 
 batch_size=P1/2
-lr = 1e-2 # TODO: simulation strongly dependent on lr...
-tau= 1/ lr  ### in article tau = Delta_t / lr  (maybe P???)
+lr = 1e-3
+tau = 1/ lr  ### in article tau = Delta_t / lr  (maybe P???)
 depth = 1 ### works for small enough lr
 
 
@@ -40,8 +40,6 @@ def main(N=N, P1=P1, P2=P2, epochs1=epochs1, epochs2=epochs2, sgm_e=sgm_e, sgm_w
     #TODO: use make_ds function from utils
     X1, Y1, w_bar1 = teacher1.build_teacher(N, 2*P1, sgm_w1, sgm_e) ### generate 2 times more example for train/test split
     X2, Y2, w_bar2 = teacher2.build_teacher(N, 2*P2, sgm_w2, sgm_e)
-    print(X1)
-    print(Y1)
     #TODO: add KS-test? check how X1, X2 are correlated, make them look different
     # check_correlation(X1,X2) # checks Pearson correlation coefficient, works only for P1=P2
     X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size=0.5, random_state=42)
@@ -153,7 +151,7 @@ def plot_history(errors, n_runs, variances=None, analytical=False, yrange=2):
 
 if __name__ == '__main__': #TODO: update jupyter notebook
     syllabus = [N, P1, P2, epochs1, epochs2, sgm_w1, sgm_w2, sgm_e, lr, depth]
-    n_runs = 10
+    n_runs = 1
     errors, variances = simulate(syllabus, n_runs)
     plot_history(errors=errors, n_runs=n_runs,
                  variances=variances, analytical=True, yrange=5)

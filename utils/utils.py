@@ -110,10 +110,10 @@ def train_valid_loop(data_loaders, data_lengths, n_epochs,
                 ### forward pass to get outputs
                 y_pred = model(X)
 
-
                 ### calculate the loss between predicted and target
                 loss = criterion(y_pred, Y_true)
-                if loss.item()==float("inf"):
+                # print("loss",loss)
+                if np.array(torch.isinf(loss)).any():
                     print("Possibly too large lr!")
                     raise ValueError
                 ### zero the parameter (weight) gradients

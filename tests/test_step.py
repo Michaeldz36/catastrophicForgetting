@@ -9,11 +9,11 @@ sgm_w0=1
 sparsity=1
 d=1
 
-lr=1e-3
+lr=1e-4
 
 model = Student(n_features=N, sgm_w0=sgm_w0, sparsity=sparsity, depth=d)
 optimizer = optim.SGD(model.parameters(), lr=lr)
-criterion = nn.MSELoss()
+criterion = nn.MSELoss(reduction='mean')
 
 X_train=np.array([[1,1,1],[2,2,2],[3,3,3]])
 Y_train=np.array([2,4,6])
@@ -41,7 +41,7 @@ for phase in ['train','valid']:
 if __name__ == '__main__':
     h=train_valid_loop(data_loaders=data_loaders,
                      data_lengths=data_lengths,
-                     n_epochs=10,
+                     n_epochs=2,
                      optimizer=optimizer,
                      model=model,
                      criterion=criterion,
