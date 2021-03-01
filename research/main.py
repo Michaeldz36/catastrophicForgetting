@@ -24,11 +24,11 @@ sgm_e = setup.sgm_e
 sgm_w0 = 1e-13 ### 0 in article..
 sparsity=1 ### this hack enables us to initialize with 0 weights
 
-epochs1 = 10
+epochs1 = 100
 epochs2 = 0
 
 batch_size=P1/2
-lr = 1e-3 # TODO: simulation strongly dependent on lr...
+lr = 1e-2 # TODO: simulation strongly dependent on lr...
 tau= 1/ lr  ### in article tau = Delta_t / lr  (maybe P???)
 depth = 1 ### works for small enough lr
 
@@ -77,6 +77,7 @@ def main(N=N, P1=P1, P2=P2, epochs1=epochs1, epochs2=epochs2, sgm_e=sgm_e, sgm_w
                                 model=model,
                                 criterion=criterion,
                                 e_print=50,
+                                phases=['train','valid']
                                 )
     print('Lesson 2/2:')
     print('-' * 20)
