@@ -18,16 +18,16 @@ setup = Setup()
 ### Hyperparameters
 N = 300
 P1 = 300
-P2 = P1 # for now
+P2 = P1  # for now
 
 sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
 sgm_e = setup.sgm_e
 
-sgm_w0 = 1 ### 0 in article, look down V
-sparsity=1 ### this hack enables us to initialize with 0 weights
+sgm_w0 = 1  ### 0 in article, look down V
+sparsity = 1  ### this hack enables us to initialize with 0 weights
 
-epochs1 = 1000
+epochs1 = 20
 epochs2 = 0
 
 lr = 1e-3
@@ -36,29 +36,31 @@ tau = 1 #* batch_size/ lr  ### in article tau = Delta_t / lr  (maybe P???)
 
 depth = 1
 
-def main(N=N, P1=P1, P2=P2, epochs1=epochs1, epochs2=epochs2, sgm_e=sgm_e, sgm_w2=sgm_w2, sgm_w1=sgm_w1, lr=lr,
-         d=depth):
+
+def main(N=N, P1=P1, P2=P2, epochs1=epochs1, epochs2=epochs2,
+         sgm_e=sgm_e, sgm_w2=sgm_w2, sgm_w1=sgm_w1, lr=lr, d=depth):
+
     teacher1 = Teacher()
     teacher2 = Teacher()
-    #TODO: use make_ds function from utils
-    X1, Y1, w_bar1 = teacher1.build_teacher(N, 2*P1, sgm_w1, sgm_e) ### generate 2 times more example for train/test split
-    X2, Y2, w_bar2 = teacher2.build_teacher(N, 2*P2, sgm_w2, sgm_e)
-    #TODO: add KS-test? check how X1, X2 are correlated, make them look different
+    # TODO: use make_ds function from utils
+    ### generate 2 times more examples (2*P1, 2*P2) for train/test split
+    X1, Y1, w_bar1 = teacher1.build_teacher(N, 2 * P1, sgm_w1, sgm_e)
+    X2, Y2, w_bar2 = teacher2.build_teacher(N, 2 * P2, sgm_w2, sgm_e)
+    # TODO: add KS-test? check how X1, X2 are correlated, make them look different
     # check_correlation(X1,X2) # checks Pearson correlation coefficient, works only for P1=P2
     X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size=0.5, random_state=42)
     X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size=0.5, random_state=42)
 
-
-    model = Student(n_features=N, sgm_w0=sgm_w0, sparsity=sparsity, depth = d)
+    model = Student(n_features=N, sgm_w0=sgm_w0, sparsity=sparsity, depth=d)
     optimizer = optim.SGD(model.parameters(), lr=lr)
     criterion = nn.MSELoss(reduction='mean')
 
     # datasets for training the student network
-    train_ds1 = PrepareData(X1_train, y=Y1_train, scale_X=True)
-    train_ds2 = PrepareData(X2_train, y=Y2_train, scale_X=True)
+    train_ds1 = PrepareData(X1_train, y=Y1_train, scale_X=False)
+    train_ds2 = PrepareData(X2_train, y=Y2_train, scale_X=False)
     # datasets for validation errors
-    valid_ds1 = PrepareData(X1_test, y=Y1_test, scale_X=True)
-    valid_ds2 = PrepareData(X2_test, y=Y2_test, scale_X=True)
+    valid_ds1 = PrepareData(X1_test, y=Y1_test, scale_X=False)
+    valid_ds2 = PrepareData(X2_test, y=Y2_test, scale_X=False)
     # datasets for cross generalization error
     cross_gen_ds1 = valid_ds2
     cross_gen_ds2 = valid_ds1
@@ -75,7 +77,7 @@ def main(N=N, P1=P1, P2=P2, epochs1=epochs1, epochs2=epochs2, sgm_e=sgm_e, sgm_w
                                 model=model,
                                 criterion=criterion,
                                 e_print=50,
-                                phases=['train','valid',]
+                                phases=['train', 'valid', ]
                                 )
     print('Lesson 2/2:')
     print('-' * 20)
@@ -104,8 +106,8 @@ def simulate(syllabus, n_runs):
         history = main(*syllabus)
         realisations.append(history)
     # TODO: check (unit test), clean this clutter
-    square_realisations=[]
-    c = Counter() # sums values in lists for each computed error
+    square_realisations = []
+    c = Counter()  # sums values in lists for each computed error
     for r in realisations:
         c.update(r)
         square_realisations.append({k: v ** 2 for k, v in r.items()})
@@ -115,25 +117,26 @@ def simulate(syllabus, n_runs):
     v = Counter()
     for sr in square_realisations:
         v.update(sr)
-    variances=pd.DataFrame(v)/ n_runs - errors**2
+    variances = pd.DataFrame(v) / n_runs - errors ** 2
     return errors, variances
 
 
 def plot_history(errors, n_runs, variances=None, analytical=False, yrange=2):
     errors.plot(figsize=(8, 5), yerr=None)
     for column in errors.columns:
-        plt.fill_between(variances.index, errors[column]-variances[column], errors[column]+variances[column], alpha=0.2)
-    plt.axhline(y=sgm_e, color='r', linestyle='--',  linewidth=0.5, alpha=0.5)
+        plt.fill_between(variances.index, errors[column] - variances[column], errors[column] + variances[column],
+                         alpha=0.2)
+    plt.axhline(y=sgm_e ** 2 + sgm_w1 ** 2 + sgm_w0 ** 2, color='r', linestyle='--', linewidth=0.5, alpha=0.5)
     plt.grid(True)
-    # plt.ylim([0,yrange])
+    plt.ylim([0,yrange])
     plt.xlabel("Epoch")
     plt.ylabel("Mean Squared Error")
     plt.title("Linear network with {} layers depth \n"
               "(MSE averaged over {} realisations)".format(depth, n_runs))
     textstr = '\n'.join((
-        r'$N=%.2f$' % (N, ),
-        r'$P_{1}=%.2f$' % (P1, ),
-        r'$P_{2}=%.2f$' % (P2, ),
+        r'$N=%.2f$' % (N,),
+        r'$P_{1}=%.2f$' % (P1,),
+        r'$P_{2}=%.2f$' % (P2,),
         r'$\sigma_{w_1}=%.2f$' % (sgm_w1,),
         r'$\sigma_{w_2}=%.2f$' % (sgm_w1,),
         r'$\sigma_{\epsilon}=%.2f$' % (sgm_e,),
@@ -141,7 +144,10 @@ def plot_history(errors, n_runs, variances=None, analytical=False, yrange=2):
     ))
     plt.gcf().text(0.91, 0.12, textstr, fontsize=5)
     if analytical:
-        analytical = AnalyticalSolution(N, P1, P2, tau, epochs1, epochs2, sgm_e, sgm_w1, sgm_w2, 0., 0.)
+        analytical = AnalyticalSolution(N=N, P1=P1, P2=P2, tau=tau,
+                                        epochs1=epochs1, epochs2=epochs2,
+                                        sgm_e=sgm_e, sgm_w1=sgm_w1, sgm_w2=sgm_w2,
+                                        sgm_w0=0., weights_correlation=0.)
         timesteps1 = np.linspace(0, epochs1, epochs1)
         timesteps2 = np.linspace(epochs1, epochs1 + epochs2, epochs2)
         e_g11, e_g22, e_g12 = analytical.curves(timesteps1, timesteps2)
@@ -152,10 +158,9 @@ def plot_history(errors, n_runs, variances=None, analytical=False, yrange=2):
     plt.show()
 
 
-if __name__ == '__main__': #TODO: update jupyter notebook
+if __name__ == '__main__':  # TODO: update jupyter notebook
     syllabus = [N, P1, P2, epochs1, epochs2, sgm_w1, sgm_w2, sgm_e, lr, depth]
-    n_runs = 10
+    n_runs = 1
     errors, variances = simulate(syllabus, n_runs)
     plot_history(errors=errors, n_runs=n_runs,
-                 variances=variances, analytical=True, yrange=5)
-
+                 variances=variances, analytical=True, yrange=1.5)

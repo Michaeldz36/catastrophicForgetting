@@ -86,20 +86,22 @@ def make_plot(e_g11, e_g22, e_g12, timesteps1, timesteps2):
     plt.grid(True)
     plt.ylim([0,1.75])
     plt.legend()
+    plt.axhline(y=0.2**2 +1**2+0**2, color='r', linestyle='--',  linewidth=0.5, alpha=0.5)
     plt.show()
     print("Done!")
 
 if __name__ == '__main__':
     setup = Setup()
-    curves = AnalyticalSolution(N=100, P1=100, P2=100, tau=3,
-                                epochs1=3000, epochs2=0, sgm_e=setup.sgm_e,
-                                sgm_w1=setup.sgm_w, sgm_w2=setup.sgm_w * 2,
-                                sgm_w0=setup.sgm_w0, weights_correlation=0)
-    timesteps1 = np.linspace(0, curves.epochs1, 150)
-    timesteps2 = np.linspace(curves.epochs1, curves.epochs1 + curves.epochs2,150)
-    e_g11, e_g22, e_g12 = curves.curves(timesteps1, timesteps2)
-    plt.title("Analytical solutions to 2 linear teacher scenario")
-    make_plot(e_g11, e_g22, e_g12, timesteps1, timesteps2)
+    for tau in [1/2, 1,  1.5, 2]:
+        curves = AnalyticalSolution(N=300, P1=300, P2=300, tau=tau,
+                                    epochs1=20, epochs2=0, sgm_e=setup.sgm_e,
+                                    sgm_w1=setup.sgm_w, sgm_w2=setup.sgm_w * 2,
+                                    sgm_w0=setup.sgm_w0, weights_correlation=0)
+        timesteps1 = np.linspace(0, curves.epochs1, 150)
+        timesteps2 = np.linspace(curves.epochs1, curves.epochs1 + curves.epochs2,150)
+        e_g11, e_g22, e_g12 = curves.curves(timesteps1, timesteps2)
+        plt.title("Analytical solutions to 2 linear teacher scenario WITH {}".format(tau))
+        make_plot(e_g11, e_g22, e_g12, timesteps1, timesteps2)
 
 
 

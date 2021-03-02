@@ -14,7 +14,7 @@ class Setup():     # TODO: find good starting values
     # INR = (sgm_w0 / sgm_w) ** 2
     sgm_w = 1.
     sgm_w0 = 0.
-    sgm_e = 0.2
+    sgm_e = np.sqrt(1/5)
 
 
 
