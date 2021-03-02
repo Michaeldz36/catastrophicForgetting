@@ -1,3 +1,6 @@
+import sys
+sys.path.append("..")
+
 import numpy as np
 import matplotlib.pyplot as plt
 from utils.random import MP_evals, mpPDF, fitKDE
@@ -6,7 +9,7 @@ from utils.random import MP_evals, mpPDF, fitKDE
 is comparable to analytical one"""
 
 
-P = 10000
+P = 2000
 N = 1000
 
 # Generating a random matrix

@@ -1,4 +1,6 @@
-import torch
+import sys
+sys.path.append("..")
+
 import numpy as np
 import torch.optim as optim
 import torch.nn as nn

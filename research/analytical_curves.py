@@ -1,3 +1,6 @@
+import sys
+sys.path.append("..")
+
 import numpy as np
 import matplotlib.pyplot as plt
 from utils.utils import Setup
@@ -34,7 +37,7 @@ class AnalyticalSolution: #TODO: make it work with main's syllabus
         B0= 1/self.eVals1 * self.sgm_e**2
         B = lambda t: B0*(1 - np.exp(-self.eVals1 * t/self.tau))**2
         eg11= 1 / self.N * np.sum(A(t) + B(t)) + self.sgm_e**2
-        return eg11 / self.sgm_w1**2
+        return eg11
 
 
     def E_g22(self,t):
@@ -43,7 +46,7 @@ class AnalyticalSolution: #TODO: make it work with main's syllabus
         A = lambda t: A0 * np.exp(-2*self.eVals2*(t-self.epochs1)/self.tau)
         B = lambda t: 1/ self.eVals2 * self.sgm_e**2 *(1 - np.exp(-self.eVals2*(t-self.epochs1)/self.tau))**2
         eg22 =1 / self.N * np.sum(A(t) + B(t)) + self.sgm_e**2 #  shouldnt there be + self.sgm_w1**2 ??
-        return eg22 / self.sgm_w2**2
+        return eg22
 
     def E_g12(self, t):
         A0 = np.exp(-2 * self.eVals1 * self.epochs1 / self.tau)
@@ -54,7 +57,8 @@ class AnalyticalSolution: #TODO: make it work with main's syllabus
         C = lambda t:  1 / self.N * np.sum(C0 * (1 - np.exp(-self.eVals2 * (t - self.epochs1) / self.tau)) ** 2)
         D = lambda t: - 2 / self.N**2 * np.sum((1-np.exp(-self.eVals2*(t-self.epochs1)/self.tau)) * self.weights_correlation)
         eg12= A(t)+B(t)+C(t)+D(t) + self.sgm_e ** 2 + self.sgm_w1 ** 2
-        return eg12 / self.sgm_w2**2
+        return eg12
+
     def curves(self, timesteps1, timesteps2):
         e_g11 = np.array([AnalyticalSolution.E_g11(self,_t) for _t in timesteps1])
         e_g22 = np.array([AnalyticalSolution.E_g22(self,_t) for _t in timesteps2])
@@ -87,8 +91,8 @@ def make_plot(e_g11, e_g22, e_g12, timesteps1, timesteps2):
 
 if __name__ == '__main__':
     setup = Setup()
-    curves = AnalyticalSolution(N=100, P1=100, P2=100, tau=1,
-                                epochs1=1000, epochs2=1000, sgm_e=setup.sgm_e,
+    curves = AnalyticalSolution(N=100, P1=100, P2=100, tau=3,
+                                epochs1=3000, epochs2=0, sgm_e=setup.sgm_e,
                                 sgm_w1=setup.sgm_w, sgm_w2=setup.sgm_w * 2,
                                 sgm_w0=setup.sgm_w0, weights_correlation=0)
     timesteps1 = np.linspace(0, curves.epochs1, 150)

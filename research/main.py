@@ -1,3 +1,6 @@
+import sys
+sys.path.append("..")
+
 import torch.nn as nn
 import torch.optim as optim
 import pandas as pd
@@ -21,17 +24,17 @@ sgm_w1 = setup.sgm_w * 1
 sgm_w2 = setup.sgm_w * 2
 sgm_e = setup.sgm_e
 
-sgm_w0 = 1e-13 ### 0 in article..
+sgm_w0 = 1 ### 0 in article, look down V
 sparsity=1 ### this hack enables us to initialize with 0 weights
 
-epochs1 = 500
-epochs2 = 500
+epochs1 = 1000
+epochs2 = 0
 
-lr = 1e-2
+lr = 1e-3
 batch_size=P1
-tau = 1/ lr * batch_size ### in article tau = Delta_t / lr  (maybe P???)
-depth = 1
+tau = 1 #* batch_size/ lr  ### in article tau = Delta_t / lr  (maybe P???)
 
+depth = 1
 
 def main(N=N, P1=P1, P2=P2, epochs1=epochs1, epochs2=epochs2, sgm_e=sgm_e, sgm_w2=sgm_w2, sgm_w1=sgm_w1, lr=lr,
          d=depth):
@@ -122,7 +125,7 @@ def plot_history(errors, n_runs, variances=None, analytical=False, yrange=2):
         plt.fill_between(variances.index, errors[column]-variances[column], errors[column]+variances[column], alpha=0.2)
     plt.axhline(y=sgm_e, color='r', linestyle='--',  linewidth=0.5, alpha=0.5)
     plt.grid(True)
-    plt.ylim([0,yrange])
+    # plt.ylim([0,yrange])
     plt.xlabel("Epoch")
     plt.ylabel("Mean Squared Error")
     plt.title("Linear network with {} layers depth \n"
@@ -151,8 +154,8 @@ def plot_history(errors, n_runs, variances=None, analytical=False, yrange=2):
 
 if __name__ == '__main__': #TODO: update jupyter notebook
     syllabus = [N, P1, P2, epochs1, epochs2, sgm_w1, sgm_w2, sgm_e, lr, depth]
-    n_runs = 3
+    n_runs = 10
     errors, variances = simulate(syllabus, n_runs)
     plot_history(errors=errors, n_runs=n_runs,
-                 variances=variances, analytical=True, yrange=2)
+                 variances=variances, analytical=True, yrange=5)
 
