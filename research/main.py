@@ -21,24 +21,26 @@ P1 = 300
 P2 = P1  # for now
 
 sgm_w1 = setup.sgm_w * 1
-sgm_w2 = setup.sgm_w * 2
-sgm_e = setup.sgm_e
+sgm_w2 = setup.sgm_w * 1
+sgm_e = 0.2
 
 sgm_w0 = 1  ### 0 in article, look down V
 sparsity = 1  ### this hack enables us to initialize with 0 weights
 
-epochs1 = 20
-epochs2 = 0
+epochs1 = 500
+epochs2 = 500
 
-lr = 1e-3
+lr = 1e-2
 batch_size=P1
 tau = 1 #* batch_size/ lr  ### in article tau = Delta_t / lr  (maybe P???)
 
 depth = 1
+activation='linear' #TODO: wip
 
 
 def main(N=N, P1=P1, P2=P2, epochs1=epochs1, epochs2=epochs2,
-         sgm_e=sgm_e, sgm_w2=sgm_w2, sgm_w1=sgm_w1, lr=lr, d=depth):
+         sgm_e=sgm_e, sgm_w2=sgm_w2, sgm_w1=sgm_w1, lr=lr, d=depth,
+         activation=activation):
 
     teacher1 = Teacher()
     teacher2 = Teacher()
@@ -51,16 +53,16 @@ def main(N=N, P1=P1, P2=P2, epochs1=epochs1, epochs2=epochs2,
     X1_train, X1_test, Y1_train, Y1_test = train_test_split(X1, Y1, test_size=0.5, random_state=42)
     X2_train, X2_test, Y2_train, Y2_test = train_test_split(X2, Y2, test_size=0.5, random_state=42)
 
-    model = Student(n_features=N, sgm_w0=sgm_w0, sparsity=sparsity, depth=d)
+    model = Student(n_features=N, sgm_w0=sgm_w0, sparsity=sparsity, depth=d, activation=activation)
     optimizer = optim.SGD(model.parameters(), lr=lr)
     criterion = nn.MSELoss(reduction='mean')
 
     # datasets for training the student network
-    train_ds1 = PrepareData(X1_train, y=Y1_train, scale_X=False)
-    train_ds2 = PrepareData(X2_train, y=Y2_train, scale_X=False)
+    train_ds1 = PrepareData(X1_train, y=Y1_train, scale_X=True)
+    train_ds2 = PrepareData(X2_train, y=Y2_train, scale_X=True)
     # datasets for validation errors
-    valid_ds1 = PrepareData(X1_test, y=Y1_test, scale_X=False)
-    valid_ds2 = PrepareData(X2_test, y=Y2_test, scale_X=False)
+    valid_ds1 = PrepareData(X1_test, y=Y1_test, scale_X=True)
+    valid_ds2 = PrepareData(X2_test, y=Y2_test, scale_X=True)
     # datasets for cross generalization error
     cross_gen_ds1 = valid_ds2
     cross_gen_ds2 = valid_ds1
@@ -160,7 +162,7 @@ def plot_history(errors, n_runs, variances=None, analytical=False, yrange=2):
 
 if __name__ == '__main__':  # TODO: update jupyter notebook
     syllabus = [N, P1, P2, epochs1, epochs2, sgm_w1, sgm_w2, sgm_e, lr, depth]
-    n_runs = 1
+    n_runs = 10
     errors, variances = simulate(syllabus, n_runs)
     plot_history(errors=errors, n_runs=n_runs,
-                 variances=variances, analytical=True, yrange=1.5)
+                 variances=variances, analytical=True, yrange=5)

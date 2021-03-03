@@ -93,8 +93,8 @@ def make_plot(e_g11, e_g22, e_g12, timesteps1, timesteps2):
 if __name__ == '__main__':
     setup = Setup()
     for tau in [1/2, 1,  1.5, 2]:
-        curves = AnalyticalSolution(N=300, P1=300, P2=300, tau=tau,
-                                    epochs1=20, epochs2=0, sgm_e=setup.sgm_e,
+        curves = AnalyticalSolution(N=100, P1=100, P2=100, tau=tau,
+                                    epochs1=1000, epochs2=1000, sgm_e=setup.sgm_e,
                                     sgm_w1=setup.sgm_w, sgm_w2=setup.sgm_w * 2,
                                     sgm_w0=setup.sgm_w0, weights_correlation=0)
         timesteps1 = np.linspace(0, curves.epochs1, 150)

@@ -33,18 +33,29 @@ class Teacher(): #TODO: check if redundant
 
 
 class Student(nn.Module):
-    def __init__(self, n_features, sgm_w0=0.01, sparsity=0., depth = 1):
+    def __init__(self, n_features, sgm_w0=0.01, sparsity=0., depth = 1, activation='linear'):
         super(Student, self).__init__()
+        self.activation=activation
+
         self.linears = nn.ModuleList([nn.Linear(in_features=n_features, out_features=n_features, bias=False) for _ in range(depth-1)])
         self.fc = nn.Linear(in_features=n_features, out_features=1, bias=False)
         for i in range(depth-1):
             nn.init.sparse_(self.linears[i].weight, sparsity=sparsity, std=sgm_w0)
         nn.init.sparse_(self.fc.weight, sparsity=sparsity, std=sgm_w0)
 
+        self.relu = nn.ReLU()
+        self.sigmoid = nn.Sigmoid()
+
     def forward(self, x):
         for i, l in enumerate(self.linears):
             x = self.linears[i // 2](x) + l(x)
-        output = self.fc(x)
+
+        if self.activation=='linear':
+            output = self.fc(x)
+        elif self.activation=='ReLU':
+            output = self.relu(x)
+        elif self.activation=='sigmoid':
+            output=self.sigmoid(x)
         return output
 
 
