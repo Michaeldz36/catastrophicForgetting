@@ -41,6 +41,7 @@ for phase in ['train','valid']:
         print("Y in batch is \n{}".format(yb))
 
 if __name__ == '__main__':
+    weights = [0., 0.1867, 0.3211]
     h=train_valid_loop(data_loaders=data_loaders,
                      data_lengths=data_lengths,
                      n_epochs=2,
@@ -50,4 +51,8 @@ if __name__ == '__main__':
                      e_print=1,
                      phases=['train', 'valid',]
                      )
-    print(h)
+    for i, E in enumerate(h['E_train']):
+        e_simulation = E
+        e_calculated = 1/3 * np.sum((3*X_train[:,0]*weights[i]-Y_train[:])**2)
+        np.testing.assert_almost_equal(e_calculated,e_simulation, 3)
+        print("Assertions complete!")
