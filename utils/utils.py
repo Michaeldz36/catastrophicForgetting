@@ -89,7 +89,7 @@ def load_data(train_ds, valid_ds=[], generalize_ds=[], batch_size=1): #TODO: bat
 
 
 def train_valid_loop(data_loaders, data_lengths, n_epochs,
-                     optimizer, model, criterion, e_print=1, \
+                     optimizer, model, criterion, e_print=1000, \
                      phases=['train', 'valid', 'generalize']):
     history={}
     if 'train' in phases: #TODO: training not enabled when train not in phases for now

@@ -66,7 +66,7 @@ def main(alpha, save_epochs):
                      optimizer=optimizer,
                      model=model,
                      criterion=criterion,
-                     e_print=50
+                     e_print=1000
                     )
     print('Lesson 2/2')
     data_loaders2, data_lengths2 = load_data(train_ds=train_ds2, valid_ds=valid_ds2,
@@ -119,7 +119,7 @@ def make_data(n_runs, resolution=10, save_epochs=[epochs1, epochs1+epochs2]):
             egs_vs_alpha[k].append(v)
             variances_vs_alpha[k].append(variances[k])
         print('-' * 50)
-        print("Finished {} %".format(round((alpha-1)/(1.5)*100,2)))
+        print("Finished {} %".format(round(alpha/(2.5)*100,2)))
         print('-' * 50)
     errors=pd.DataFrame(egs_vs_alpha,index=alphas)
     variances=pd.DataFrame(variances_vs_alpha)
@@ -145,7 +145,7 @@ def make_plot(errors, variances=None):
     plt.show()
 
 if __name__ == '__main__':
-    n_runs = 10 #used for averaging over realisations
+    n_runs = 1 #used for averaging over realisations
     resolution = 15 #for how many different alphas in range [0+\eps, 2.5] simulation is performed
     errors, variances = make_data(n_runs, resolution,
                        save_epochs=[epochs1//200, epochs1//50, epochs1//20, epochs1//10, epochs1, epochs1+epochs2//2, epochs1+epochs2])
